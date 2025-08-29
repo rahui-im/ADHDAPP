@@ -1,0 +1,382 @@
+/* 접근성 개선을 위한 CSS */
+
+/* 키보드 네비게이션 시 포커스 표시 개선 */
+.keyboard-navigation *:focus {
+  outline: 3px solid #3B82F6 !important;
+  outline-offset: 2px !important;
+  border-radius: 4px;
+}
+
+/* 마우스 사용 시 포커스 아웃라인 숨김 */
+:not(.keyboard-navigation) *:focus {
+  outline: none;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  /* 버튼 대비 개선 */
+  .btn-primary {
+    background-color: #000000 !important;
+    color: #FFFFFF !important;
+    border: 2px solid #FFFFFF !important;
+  }
+  
+  .btn-secondary {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+  }
+  
+  /* 텍스트 대비 개선 */
+  .text-gray-600 {
+    color: #000000 !important;
+  }
+  
+  .text-gray-500 {
+    color: #333333 !important;
+  }
+  
+  /* 배경 대비 개선 */
+  .bg-gray-50 {
+    background-color: #FFFFFF !important;
+  }
+  
+  .bg-gray-100 {
+    background-color: #F0F0F0 !important;
+  }
+}
+
+/* 움직임 감소 설정 지원 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Framer Motion 애니메이션 비활성화 */
+  .motion-reduce {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* 큰 텍스트 모드 지원 */
+@media (min-resolution: 2dppx) and (prefers-contrast: high) {
+  body {
+    font-size: 18px !important;
+    line-height: 1.6 !important;
+  }
+  
+  .text-sm {
+    font-size: 16px !important;
+  }
+  
+  .text-base {
+    font-size: 18px !important;
+  }
+  
+  .text-lg {
+    font-size: 22px !important;
+  }
+  
+  .text-xl {
+    font-size: 26px !important;
+  }
+}
+
+/* 스크린 리더 전용 텍스트 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 포커스 시 스크린 리더 텍스트 표시 */
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background-color: #000;
+  color: #fff;
+  border-radius: 4px;
+  z-index: 9999;
+}
+
+/* 터치 타겟 크기 보장 (최소 44px) */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+a {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* 링크 구분을 위한 밑줄 */
+a:not(.btn):not(.no-underline) {
+  text-decoration: underline;
+}
+
+a:not(.btn):not(.no-underline):hover {
+  text-decoration: none;
+}
+
+/* 포커스 표시기 개선 */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+  border-color: #3B82F6;
+}
+
+/* 체크박스와 라디오 버튼 접근성 개선 */
+input[type="checkbox"],
+input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+}
+
+input[type="checkbox"]:focus,
+input[type="radio"]:focus {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* 진행률 표시기 접근성 개선 */
+[role="progressbar"] {
+  background-color: #E5E7EB;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+[role="progressbar"]:focus {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* 타이머 디스플레이 접근성 개선 */
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* 에러 메시지 스타일링 */
+.error-message {
+  color: #DC2626;
+  font-weight: 600;
+}
+
+@media (prefers-contrast: high) {
+  .error-message {
+    color: #000000 !important;
+    background-color: #FEE2E2 !important;
+    padding: 0.5rem !important;
+    border: 2px solid #DC2626 !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* 성공 메시지 스타일링 */
+.success-message {
+  color: #059669;
+  font-weight: 600;
+}
+
+@media (prefers-contrast: high) {
+  .success-message {
+    color: #000000 !important;
+    background-color: #D1FAE5 !important;
+    padding: 0.5rem !important;
+    border: 2px solid #059669 !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* 모달 오버레이 접근성 개선 */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+@media (prefers-contrast: high) {
+  .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+  }
+}
+
+/* 드롭다운 메뉴 접근성 개선 */
+[role="menu"],
+[role="listbox"] {
+  background-color: white;
+  border: 2px solid #D1D5DB;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+[role="menuitem"],
+[role="option"] {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+}
+
+[role="menuitem"]:focus,
+[role="option"]:focus,
+[role="menuitem"]:hover,
+[role="option"]:hover {
+  background-color: #3B82F6;
+  color: white;
+  outline: none;
+}
+
+/* 토글 스위치 접근성 개선 */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.toggle-switch .slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #3B82F6;
+}
+
+.toggle-switch input:focus + .slider {
+  outline: 3px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* 카드 컴포넌트 접근성 개선 */
+.card {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  background-color: white;
+}
+
+.card:focus-within {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* 알림 배너 접근성 개선 */
+[role="alert"],
+[role="status"] {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+[role="alert"] {
+  background-color: #FEE2E2;
+  border: 1px solid #FECACA;
+  color: #991B1B;
+}
+
+[role="status"] {
+  background-color: #DBEAFE;
+  border: 1px solid #BFDBFE;
+  color: #1E40AF;
+}
+
+/* 로딩 스피너 접근성 개선 */
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3B82F6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner {
+    animation: none;
+    border-top-color: #3B82F6;
+  }
+}
+
+/* 툴팁 접근성 개선 */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #1F2937;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 14px;
+}
+
+.tooltip:hover .tooltip-text,
+.tooltip:focus .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip .tooltip-text {
+    transition: none;
+  }
+}

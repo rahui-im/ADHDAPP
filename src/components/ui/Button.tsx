@@ -1,0 +1,121 @@
+import React, { useRef, useEffect } from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
+import { useAccessibility } from '../../hooks/useAccessibility'
+
+interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'children'> {
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'focus'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  isLoading?: boolean
+  children: React.ReactNode
+  fullWidth?: boolean
+  icon?: React.ReactNode
+  // 접근성 관련 props
+  ariaLabel?: string
+  ariaDescribedBy?: string
+  ariaExpanded?: boolean
+  ariaPressed?: boolean
+  announceOnClick?: string
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+  variant = 'primary',
+  size = 'md',
+  isLoading = false,
+  children,
+  className = '',
+  disabled,
+  fullWidth = false,
+  icon,
+  ariaLabel,
+  ariaDescribedBy,
+  ariaExpanded,
+  ariaPressed,
+  announceOnClick,
+  onClick,
+  ...props
+}, ref) => {
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const { enhanceButton, announce } = useAccessibility()
+  // ADHD 친화적 기본 클래스: 큰 터치 타겟, 명확한 시각적 피드백
+  const baseClasses = 'font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md transform-gpu'
+  
+  // ADHD 친화적 색상: 높은 대비, 명확한 구분
+  const variantClasses = {
+    primary: 'bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white focus:ring-primary-300 border-2 border-primary-600',
+    secondary: 'bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-800 focus:ring-gray-300 border-2 border-gray-300 hover:border-gray-400',
+    success: 'bg-success-500 hover:bg-success-600 active:bg-success-700 text-white focus:ring-success-300 border-2 border-success-600',
+    warning: 'bg-warning-500 hover:bg-warning-600 active:bg-warning-700 text-white focus:ring-warning-300 border-2 border-warning-600',
+    danger: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white focus:ring-red-300 border-2 border-red-600',
+    focus: 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white focus:ring-primary-300 border-2 border-primary-600 animate-pulse-slow',
+  }
+  
+  // ADHD 친화적 크기: 더 큰 터치 타겟, 읽기 쉬운 텍스트
+  const sizeClasses = {
+    sm: 'px-4 py-2.5 text-sm min-h-[40px]',
+    md: 'px-6 py-3.5 text-base min-h-[48px]',
+    lg: 'px-8 py-4 text-lg min-h-[56px]',
+    xl: 'px-10 py-5 text-xl min-h-[64px]',
+  }
+  
+  const widthClass = fullWidth ? 'w-full' : ''
+  const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${className}`
+  
+  // 접근성 속성 설정
+  useEffect(() => {
+    if (buttonRef.current) {
+      enhanceButton(buttonRef.current, {
+        label: ariaLabel,
+        describedBy: ariaDescribedBy,
+        expanded: ariaExpanded,
+        pressed: ariaPressed,
+        disabled: disabled || isLoading
+      })
+    }
+  }, [enhanceButton, ariaLabel, ariaDescribedBy, ariaExpanded, ariaPressed, disabled, isLoading])
+
+  // 클릭 핸들러 (접근성 알림 포함)
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (announceOnClick) {
+      announce(announceOnClick, 'polite')
+    }
+    if (onClick) {
+      onClick(event)
+    }
+  }
+  
+  return (
+    <motion.button
+      ref={ref || buttonRef}
+      whileHover={{ 
+        scale: disabled || isLoading ? 1 : 1.02,
+        y: disabled || isLoading ? 0 : -1
+      }}
+      whileTap={{ 
+        scale: disabled || isLoading ? 1 : 0.98,
+        y: disabled || isLoading ? 0 : 1
+      }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+      className={classes}
+      disabled={disabled || isLoading}
+      onClick={handleClick}
+      {...props}
+    >
+      {isLoading ? (
+        <div className="flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
+          <span>로딩중...</span>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center gap-2">
+          {icon && <span className="flex-shrink-0">{icon}</span>}
+          <span>{children}</span>
+        </div>
+      )}
+    </motion.button>
+  )
+})
+
+Button.displayName = 'Button'
+
+export { Button }
+export default Button

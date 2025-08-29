@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA 아이콘 생성기</title>
+</head>
+<body>
+    <h1>ADHD Time Manager 아이콘 생성</h1>
+    <canvas id="canvas" width="512" height="512" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="downloadIcon(48)">48x48 다운로드</button>
+    <button onclick="downloadIcon(72)">72x72 다운로드</button>
+    <button onclick="downloadIcon(96)">96x96 다운로드</button>
+    <button onclick="downloadIcon(144)">144x144 다운로드</button>
+    <button onclick="downloadIcon(192)">192x192 다운로드</button>
+    <button onclick="downloadIcon(256)">256x256 다운로드</button>
+    <button onclick="downloadIcon(384)">384x384 다운로드</button>
+    <button onclick="downloadIcon(512)">512x512 다운로드</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // ADHD Time Manager 아이콘 그리기
+        function drawIcon() {
+            // 배경 (그라데이션)
+            const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+            gradient.addColorStop(0, '#3B82F6'); // primary-500
+            gradient.addColorStop(1, '#1D4ED8'); // primary-700
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+            
+            // 둥근 모서리 효과
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.beginPath();
+            ctx.roundRect(0, 0, 512, 512, 80);
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            
+            // 뇌 아이콘 (간단한 형태)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            // 뇌 모양 근사치
+            ctx.ellipse(256, 200, 120, 80, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // 시계 아이콘
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(256, 350, 60, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // 시계 바늘
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(256, 350);
+            ctx.lineTo(256, 310);
+            ctx.moveTo(256, 350);
+            ctx.lineTo(280, 330);
+            ctx.stroke();
+            
+            // 텍스트
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('ADHD', 256, 460);
+            ctx.font = 'bold 24px Arial';
+            ctx.fillText('Timer', 256, 490);
+        }
+
+        function downloadIcon(size) {
+            // 새 캔버스 생성
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // 원본 캔버스를 새 크기로 복사
+            tempCtx.drawImage(canvas, 0, 0, 512, 512, 0, 0, size, size);
+            
+            // 다운로드
+            tempCanvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // 아이콘 그리기
+        drawIcon();
+    </script>
+</body>
+</html>
