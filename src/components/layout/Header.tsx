@@ -2,6 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../ui/Button'
 import Tooltip from '../ui/Tooltip'
+import { ThemeToggler } from '../ui/ThemeToggler'
 
 
 interface HeaderProps {
@@ -165,6 +166,10 @@ const Header: React.FC<HeaderProps> = ({
               </span>
             </motion.div>
           )}
+
+          <div className="hidden sm:block">
+            <ThemeToggler />
+          </div>
 
           {/* 집중 모드 토글 */}
           <Tooltip content={focusMode ? '집중 모드를 해제하고 모든 기능을 사용하세요' : '집중 모드로 방해 요소를 최소화하세요'}>

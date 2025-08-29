@@ -94,11 +94,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     
     switch (energyLevel) {
       case 'low':
-        return { bg: 'bg-blue-50', text: 'text-blue-900', border: 'border-blue-200' }
+        return { bg: 'bg-blue-50 dark:bg-gray-800', text: 'text-blue-900 dark:text-blue-200', border: 'border-blue-200 dark:border-gray-700' }
       case 'high':
-        return { bg: 'bg-green-50', text: 'text-green-900', border: 'border-green-200' }
+        return { bg: 'bg-green-50 dark:bg-gray-800', text: 'text-green-900 dark:text-green-200', border: 'border-green-200 dark:border-gray-700' }
       default:
-        return { bg: 'bg-white', text: 'text-gray-900', border: 'border-gray-200' }
+        return { bg: 'bg-white dark:bg-gray-900', text: 'text-gray-900 dark:text-gray-100', border: 'border-gray-200 dark:border-gray-700' }
     }
   }
 
@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   {focusMode ? '집중 모드' : 'ADHD Timer'}
                 </h1>
                 {!focusMode && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
                     당신의 집중력 파트너
                   </p>
                 )}
@@ -151,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               className={`lg:hidden p-2 rounded-xl transition-colors duration-200 ${
                 focusMode 
                   ? 'hover:bg-gray-800 text-gray-300' 
-                  : 'hover:bg-gray-100 text-gray-500'
+                  : 'hover:bg-gray-100 text-gray-500 dark:hover:bg-gray-700 dark:text-gray-400'
               }`}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,11 +164,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           {!focusMode && (
             <div className="px-6 py-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">현재 에너지</span>
+                <span className="text-gray-600 dark:text-gray-400">현재 에너지</span>
                 <div className="flex items-center space-x-2">
-                  {energyLevel === 'low' && <span className="text-blue-500">😴 낮음</span>}
-                  {energyLevel === 'medium' && <span className="text-yellow-500">😐 보통</span>}
-                  {energyLevel === 'high' && <span className="text-green-500">😄 높음</span>}
+                  {energyLevel === 'low' && <span className="text-blue-500 dark:text-blue-400">😴 낮음</span>}
+                  {energyLevel === 'medium' && <span className="text-yellow-500 dark:text-yellow-400">😐 보통</span>}
+                  {energyLevel === 'high' && <span className="text-green-500 dark:text-green-400">😄 높음</span>}
                 </div>
               </div>
             </div>
@@ -192,10 +192,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                     isActive
                       ? focusMode
                         ? 'bg-gray-800 text-white shadow-lg'
-                        : 'bg-primary-100 text-primary-800 border-2 border-primary-300 shadow-md'
+                        : 'bg-primary-100 text-primary-800 border-2 border-primary-300 shadow-md dark:bg-primary-500/20 dark:text-primary-200 dark:border-primary-500/50'
                       : focusMode
                       ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                      : 'text-gray-700 hover:bg-gray-100 hover:shadow-md'
+                      : 'text-gray-700 hover:bg-gray-100 hover:shadow-md dark:text-gray-300 dark:hover:bg-gray-800'
                   }`}
                 >
                   {/* 이모지 아이콘 */}
@@ -209,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       {item.label}
                     </div>
                     {!focusMode && (
-                      <div className="text-xs text-gray-500 mt-1">
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {item.description}
                       </div>
                     )}
@@ -220,7 +220,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <motion.div
                       layoutId="activeIndicator"
                       className={`w-3 h-3 rounded-full ${
-                        focusMode ? 'bg-white' : 'bg-primary-500'
+                        focusMode ? 'bg-white' : 'bg-primary-500 dark:bg-primary-400'
                       }`}
                     />
                   )}
@@ -245,12 +245,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* 하단 정보 */}
           {!focusMode && (
-            <div className="p-6 border-t-2 border-gray-200">
+            <div className={`p-6 border-t-2 ${theme.border}`}>
               <div className="text-center">
-                <div className="text-xs text-gray-500 mb-2">
+                <div className="text-xs text-gray-500 dark:text-gray-500 mb-2">
                   ADHD Time Manager v1.0.0
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-gray-400 dark:text-gray-600">
                   💪 당신의 집중력을 응원합니다!
                 </div>
               </div>

@@ -53,11 +53,11 @@ const Card: React.FC<CardProps> = ({
   
   // 변형별 색상
   const variantClasses = {
-    default: 'bg-white border-gray-200',
-    primary: 'bg-primary-50 border-primary-200',
-    success: 'bg-success-50 border-success-200',
-    warning: 'bg-warning-50 border-warning-200',
-    danger: 'bg-red-50 border-red-200',
+    default: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700',
+    primary: 'bg-primary-50 dark:bg-primary-500/10 border-primary-200 dark:border-primary-500/20',
+    success: 'bg-success-50 dark:bg-success-500/10 border-success-200 dark:border-success-500/20',
+    warning: 'bg-warning-50 dark:bg-warning-500/10 border-warning-200 dark:border-warning-500/20',
+    danger: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20',
   }
   
   const borderClass = border ? 'border-2' : ''
@@ -119,10 +119,10 @@ export const StatCard: React.FC<StatCardProps> = ({
   trend,
 }) => {
   const colorClasses = {
-    primary: 'text-primary-600 bg-primary-50',
-    success: 'text-success-600 bg-success-50',
-    warning: 'text-warning-600 bg-warning-50',
-    danger: 'text-red-600 bg-red-50',
+    primary: 'text-primary-600 bg-primary-50 dark:bg-primary-500/10 dark:text-primary-400',
+    success: 'text-success-600 bg-success-50 dark:bg-success-500/10 dark:text-success-400',
+    warning: 'text-warning-600 bg-warning-50 dark:bg-warning-500/10 dark:text-warning-400',
+    danger: 'text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400',
   }
   
   return (
@@ -135,21 +135,21 @@ export const StatCard: React.FC<StatCardProps> = ({
         )}
         
         <div className={`${icon ? 'ml-4' : ''} flex-1`}>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
           
           {subtitle && (
-            <p className="text-sm text-gray-500">{subtitle}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">{subtitle}</p>
           )}
           
           {trend && (
             <div className="flex items-center mt-1">
               <span className={`text-sm font-medium ${
-                trend.isPositive ? 'text-success-600' : 'text-red-600'
+                trend.isPositive ? 'text-success-600 dark:text-success-400' : 'text-red-600 dark:text-red-400'
               }`}>
                 {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}%
               </span>
-              <span className="text-sm text-gray-500 ml-1">
+              <span className="text-sm text-gray-500 dark:text-gray-500 ml-1">
                 지난 주 대비
               </span>
             </div>
@@ -180,9 +180,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onClick,
 }) => {
   const priorityColors = {
-    low: 'bg-gray-100 text-gray-800',
-    medium: 'bg-warning-100 text-warning-800',
-    high: 'bg-red-100 text-red-800',
+    low: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    medium: 'bg-warning-100 text-warning-800 dark:bg-warning-500/20 dark:text-warning-300',
+    high: 'bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300',
   }
   
   const priorityLabels = {
@@ -195,7 +195,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     <Card padding="md" shadow="sm" hover onClick={onClick}>
       <div className="space-y-3">
         <div className="flex items-start justify-between">
-          <h3 className={`font-semibold ${isCompleted ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+          <h3 className={`font-semibold ${isCompleted ? 'line-through text-gray-500 dark:text-gray-500' : 'text-gray-900 dark:text-gray-100'}`}>
             {title}
           </h3>
           <span className={`px-2 py-1 text-xs font-medium rounded-full ${priorityColors[priority]}`}>
@@ -204,10 +204,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
         
         {description && (
-          <p className="text-sm text-gray-600">{description}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
         )}
         
-        <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
           <span>예상 시간: {estimatedTime}분</span>
           {progress > 0 && (
             <span>{Math.round(progress)}% 완료</span>
@@ -215,9 +215,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
         
         {progress > 0 && (
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <motion.div
-              className="bg-primary-500 h-2 rounded-full"
+              className="bg-primary-500 dark:bg-primary-400 h-2 rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5 }}
