@@ -8,8 +8,6 @@ import Button from './components/ui/Button'
 import Card from './components/ui/Card'
 import { KeyboardShortcutsHelp } from './components/accessibility/KeyboardShortcutsHelp'
 import { useAccessibility } from './hooks/useAccessibility'
-import { useTheme } from './hooks/useTheme'
-import { useUserSettingsManager } from './hooks/useUserSettingsManager'
 import {
   LazyDashboardPage,
   LazyTasksPage,
@@ -21,8 +19,6 @@ import { pwaManager } from './utils/pwaUtils'
 import { performanceMonitor } from './utils/performanceMonitor'
 
 function App() {
-  useTheme() // 테마 적용 훅 호출
-  useUserSettingsManager() // 사용자 설정 저장 훅 호출
   const dispatch = useAppDispatch()
   const currentUser = useAppSelector(selectCurrentUser)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)

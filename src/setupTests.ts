@@ -1,4 +1,3 @@
-import { afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom'
 
 // Mock crypto.randomUUID for tests
@@ -27,46 +26,46 @@ global.ResizeObserver = class ResizeObserver {
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // deprecated
-    removeListener: vi.fn(), // deprecated
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
   })),
 })
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
 }
 global.localStorage = localStorageMock
 
 // Mock sessionStorage
 const sessionStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
 }
 global.sessionStorage = sessionStorageMock
 
 // Mock Notification API
 global.Notification = {
-  requestPermission: vi.fn(() => Promise.resolve('granted')),
+  requestPermission: jest.fn(() => Promise.resolve('granted')),
   permission: 'granted',
 } as any
 
 // Mock window.alert, confirm, prompt
-global.alert = vi.fn()
-global.confirm = vi.fn(() => true)
-global.prompt = vi.fn(() => 'test')
+global.alert = jest.fn()
+global.confirm = jest.fn(() => true)
+global.prompt = jest.fn(() => 'test')
 
 // Mock requestAnimationFrame
 global.requestAnimationFrame = (callback: FrameRequestCallback) => {
@@ -78,7 +77,7 @@ global.cancelAnimationFrame = (id: number) => {
 }
 
 // Mock performance.now
-global.performance.now = vi.fn(() => Date.now())
+global.performance.now = jest.fn(() => Date.now())
 
 // Suppress console errors in tests unless explicitly needed
 const originalError = console.error
@@ -100,7 +99,7 @@ afterAll(() => {
 
 // Clean up after each test
 afterEach(() => {
-  vi.clearAllMocks()
+  jest.clearAllMocks()
   localStorageMock.getItem.mockClear()
   localStorageMock.setItem.mockClear()
   localStorageMock.removeItem.mockClear()

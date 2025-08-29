@@ -89,11 +89,11 @@ const Layout: React.FC<LayoutProps> = ({
     
     switch (energyLevel) {
       case 'low':
-        return 'bg-blue-50 dark:bg-blue-900/20' // 차분한 파란색
+        return 'bg-blue-50' // 차분한 파란색
       case 'high':
-        return 'bg-green-50 dark:bg-green-900/20' // 활기찬 초록색
+        return 'bg-green-50' // 활기찬 초록색
       default:
-        return 'bg-gray-50 dark:bg-gray-800' // 기본 회색
+        return 'bg-gray-50' // 기본 회색
     }
   }
 
@@ -229,18 +229,18 @@ const Layout: React.FC<LayoutProps> = ({
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
-                className="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl"
+                className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl"
               >
                 <div className="text-6xl mb-4" aria-hidden="true">🧘‍♀️</div>
                 <h3 
                   id="break-reminder-title"
-                  className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+                  className="text-xl font-bold text-gray-900 mb-2"
                 >
                   잠깐 휴식하세요!
                 </h3>
                 <p 
                   id="break-reminder-description"
-                  className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed"
+                  className="text-gray-600 mb-6 leading-relaxed"
                 >
                   25분간 집중하셨습니다. 5분 정도 휴식을 취하고 다시 시작하는 것이 좋습니다.
                 </p>
