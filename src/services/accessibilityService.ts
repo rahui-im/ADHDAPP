@@ -62,7 +62,7 @@ class AccessibilityService {
         const shortcut = this.keyboardShortcuts.get(shortcutKey)
         
         if (shortcut) {
-          event.preventDefault()
+          // event.preventDefault() // BUG: This prevents default actions like space bar on buttons.
           shortcut.action()
         }
       } catch (error) {
