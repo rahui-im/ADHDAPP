@@ -1,0 +1,312 @@
+{
+  "app": {
+    "name": "ADHD Time Manager",
+    "tagline": "Customized time management tool for ADHD",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "skip": "Skip",
+    "complete": "Complete",
+    "start": "Start",
+    "stop": "Stop",
+    "pause": "Pause",
+    "resume": "Resume"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "timer": "Pomodoro Timer",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Focus and achieve your goals today! 🎯",
+    "todayTasks": "Today's Tasks",
+    "completedPomodoros": "Completed Pomodoros",
+    "currentStreak": "Current Streak",
+    "energyLevel": "Energy Level",
+    "focusTime": "Focus Time",
+    "completionRate": "Completion Rate",
+    "progress": "Progress",
+    "recommendations": "Recommended Tasks",
+    "achievements": "Achievements",
+    "quickActions": {
+      "newTask": "Add New Task",
+      "startFocus": "Start Focus Mode",
+      "viewAnalytics": "View Analytics"
+    }
+  },
+  "tasks": {
+    "title": "Task Management",
+    "subtitle": "Create and manage your tasks. Large tasks are automatically split into smaller chunks.",
+    "newTask": "New Task",
+    "noTasks": "No tasks yet",
+    "createFirstTask": "Create First Task",
+    "taskTitle": "Task Title",
+    "description": "Description",
+    "estimatedTime": "Estimated Time (minutes)",
+    "priority": "Priority",
+    "category": "Category",
+    "flexible": "Flexible Schedule",
+    "subtasks": "Subtasks",
+    "status": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "postponed": "Postponed"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "actions": {
+      "start": "Start",
+      "complete": "Complete",
+      "postpone": "Postpone",
+      "split": "Split"
+    }
+  },
+  "timer": {
+    "title": "Pomodoro Timer",
+    "focusTime": "Focus Time",
+    "shortBreak": "Short Break",
+    "longBreak": "Long Break",
+    "cycle": "Cycle",
+    "remaining": "Remaining",
+    "settings": "Timer Settings",
+    "presets": {
+      "short": "15min (Short Focus)",
+      "standard": "25min (Standard)",
+      "long": "45min (Deep Focus)"
+    },
+    "messages": {
+      "focusActive": "You're focusing! Great job 💪",
+      "breakActive": "Taking a break. Rest well 😌",
+      "paused": "Paused. Resume whenever you're ready",
+      "ready": "Press start when you're ready"
+    },
+    "completion": {
+      "focusComplete": "🎉 Focus Session Complete!",
+      "focusMessage": "Excellent! You've successfully completed your focus session.",
+      "breakComplete": "✨ Break Complete!",
+      "breakMessage": "Good break! Are you recharged?",
+      "longBreakComplete": "🌟 Long Break Complete!",
+      "longBreakMessage": "Fully recharged! You're doing great."
+    }
+  },
+  "analytics": {
+    "title": "Analytics",
+    "overview": "Overview",
+    "productivity": "Productivity",
+    "patterns": "Patterns",
+    "insights": "Insights",
+    "timeRange": {
+      "today": "Today",
+      "week": "This Week",
+      "month": "This Month",
+      "quarter": "Quarter"
+    },
+    "metrics": {
+      "totalFocusTime": "Total Focus Time",
+      "completedTasks": "Completed Tasks",
+      "averageSession": "Average Session",
+      "productiveHours": "Productive Hours",
+      "completionRate": "Completion Rate",
+      "streakDays": "Streak Days"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "timer": "Timer",
+    "notifications": "Notifications",
+    "backup": "Backup",
+    "accessibility": "Accessibility",
+    "language": "Language",
+    "theme": "Theme",
+    "account": "Account",
+    "about": "About",
+    "language": {
+      "title": "Language Settings",
+      "description": "Choose your preferred language for the app",
+      "korean": "한국어",
+      "english": "English",
+      "changeSuccess": "Language changed successfully"
+    },
+    "notifications": {
+      "title": "Notification Settings",
+      "description": "Manage notifications for pomodoro completion and break times",
+      "enable": "Enable Notifications",
+      "permission": "Notification Permission",
+      "granted": "Granted",
+      "denied": "Denied",
+      "default": "Not Set",
+      "requestPermission": "Request Permission",
+      "testNotification": "Send Test Notification"
+    },
+    "backup": {
+      "title": "Data Backup",
+      "description": "Safely backup and restore your data",
+      "create": "Create Backup",
+      "restore": "Restore",
+      "download": "Download",
+      "upload": "Upload",
+      "autoBackup": "Auto Backup",
+      "lastBackup": "Last Backup"
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to ADHD Time Manager! 🎉",
+      "subtitle": "A customized time management tool designed for ADHD",
+      "description": "Specially designed to enhance focus and productivity for people with ADHD."
+    },
+    "features": {
+      "taskSplitting": "Automatic Task Splitting",
+      "flexibleTimer": "Flexible Timer",
+      "energyTracking": "Energy Tracking",
+      "focusMode": "Focus Mode",
+      "achievements": "Achievement System"
+    },
+    "tips": {
+      "perfectNotRequired": "It doesn't have to be perfect. Small progress is still great achievement!",
+      "smallSteps": "Celebrate small wins. Each completed subtask is significant progress!",
+      "flexibleStart": "Start with 15 minutes on difficult days. You can gradually increase.",
+      "energyAwareness": "Don't push yourself when energy is low. Small achievements matter.",
+      "focusInterruption": "It's okay if focus gets interrupted. Starting again is what matters.",
+      "celebrateProgress": "Celebrate all progress. Small achievements create big changes.",
+      "trustYourself": "Starting the journey is already a big first step. Believe in yourself!"
+    },
+    "completion": {
+      "title": "Ready to Go! 🚀",
+      "subtitle": "You're now ready to use ADHD Time Manager",
+      "startTips": {
+        "title": "Getting Started Tips",
+        "simple": "Start with simple tasks",
+        "shortTimer": "Begin with 15-minute timer sessions",
+        "celebrate": "Check off completed tasks and feel the achievement",
+        "honest": "Record your energy levels honestly",
+        "imperfect": "Remember that imperfection is okay"
+      }
+    }
+  },
+  "energy": {
+    "levels": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High"
+    },
+    "descriptions": {
+      "low": "Simple tasks, organizing",
+      "medium": "Regular work, planning",
+      "high": "Creative work, complex problem solving"
+    },
+    "recommendations": {
+      "low": "When energy is low, we recommend short and simple tasks",
+      "medium": "With medium energy, proceed with regular work",
+      "high": "With high energy, focus on challenging tasks"
+    }
+  },
+  "achievements": {
+    "title": "Achievements",
+    "badges": "Badges",
+    "points": "Points",
+    "level": "Level",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "types": {
+      "firstPomodoro": "First Pomodoro",
+      "streak3": "3-Day Streak",
+      "streak7": "Week Streak",
+      "taskComplete": "Task Complete",
+      "goalAchieved": "Goal Achieved",
+      "focusMaster": "Focus Master"
+    },
+    "messages": {
+      "congratulations": "Congratulations!",
+      "newAchievement": "You've unlocked a new achievement",
+      "keepGoing": "Keep going!"
+    }
+  },
+  "focus": {
+    "mode": "Focus Mode",
+    "activate": "Activate Focus Mode",
+    "deactivate": "Deactivate Focus Mode",
+    "active": "Focus Mode Active",
+    "inactive": "Focus Mode Inactive",
+    "distractions": {
+      "detected": "Distraction detected",
+      "inactivity": "Inactivity detected",
+      "gentle": "It's okay. Let's start again",
+      "reminder": "Taking a break? Let's refocus"
+    },
+    "mindfulness": {
+      "title": "Mindfulness Activities",
+      "breathing": "Breathing Exercise",
+      "stretching": "Simple Stretching",
+      "meditation": "Short Meditation"
+    }
+  },
+  "errors": {
+    "general": "An error occurred",
+    "network": "Please check your network connection",
+    "storage": "Insufficient storage space",
+    "permission": "Permission required",
+    "validation": {
+      "required": "This field is required",
+      "minLength": "Please enter at least {{min}} characters",
+      "maxLength": "Maximum {{max}} characters allowed",
+      "invalidFormat": "Invalid format"
+    }
+  },
+  "time": {
+    "minutes": "minutes",
+    "hours": "hours",
+    "seconds": "seconds",
+    "days": "days",
+    "weeks": "weeks",
+    "months": "months",
+    "ago": "ago",
+    "remaining": "remaining",
+    "duration": "duration",
+    "total": "total"
+  },
+  "encouragement": {
+    "general": [
+      "You're doing great! 💪",
+      "Taking it step by step 🌟",
+      "It doesn't have to be perfect 💙",
+      "Great work today 🎉",
+      "Small progress is still achievement ✨"
+    ],
+    "taskComplete": [
+      "Excellent! Task completed 🎯",
+      "Another achievement unlocked! 👏",
+      "You did amazing! 🌟",
+      "Keep going like this! 💪"
+    ],
+    "pomodoroComplete": [
+      "Focus session completed! 🍅",
+      "Great focus! ⭐",
+      "One pomodoro done! 🎉",
+      "Your focus is amazing! 💫"
+    ],
+    "lowEnergy": [
+      "It's okay to have low energy 🤗",
+      "Start with something small 🌱",
+      "Today is a rest day 😌",
+      "Don't push yourself, take it slow 🐌"
+    ]
+  }
+}

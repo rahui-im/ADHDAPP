@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react'
 import { motion, HTMLMotionProps } from 'framer-motion'
-import { useAccessibility } from '../../hooks/useAccessibility'
+// import { useAccessibility } from '../../hooks/useAccessibility'
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'children'> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'focus'
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'focus' | 'outline'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   isLoading?: boolean
   children: React.ReactNode
@@ -35,18 +35,19 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   ...props
 }, ref) => {
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const { enhanceButton, announce } = useAccessibility()
+  // const { enhanceButton, announce } = useAccessibility()
   // ADHD 친화적 기본 클래스: 큰 터치 타겟, 명확한 시각적 피드백
   const baseClasses = 'font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl active:shadow-md transform-gpu'
   
   // ADHD 친화적 색상: 높은 대비, 명확한 구분
   const variantClasses = {
-    primary: 'bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white focus:ring-primary-300 border-2 border-primary-600',
+    primary: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white focus:ring-blue-300 border-2 border-blue-600',
     secondary: 'bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-800 focus:ring-gray-300 border-2 border-gray-300 hover:border-gray-400',
-    success: 'bg-success-500 hover:bg-success-600 active:bg-success-700 text-white focus:ring-success-300 border-2 border-success-600',
-    warning: 'bg-warning-500 hover:bg-warning-600 active:bg-warning-700 text-white focus:ring-warning-300 border-2 border-warning-600',
+    success: 'bg-green-500 hover:bg-green-600 active:bg-green-700 text-white focus:ring-green-300 border-2 border-green-600',
+    warning: 'bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700 text-white focus:ring-yellow-300 border-2 border-yellow-600',
     danger: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white focus:ring-red-300 border-2 border-red-600',
-    focus: 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white focus:ring-primary-300 border-2 border-primary-600 animate-pulse-slow',
+    focus: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white focus:ring-blue-300 border-2 border-blue-600 animate-pulse-slow',
+    outline: 'bg-transparent hover:bg-gray-50 active:bg-gray-100 text-gray-700 focus:ring-gray-300 border-2 border-gray-300 hover:border-gray-400',
   }
   
   // ADHD 친화적 크기: 더 큰 터치 타겟, 읽기 쉬운 텍스트
@@ -63,20 +64,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
   // 접근성 속성 설정
   useEffect(() => {
     if (buttonRef.current) {
-      enhanceButton(buttonRef.current, {
-        label: ariaLabel,
-        describedBy: ariaDescribedBy,
-        expanded: ariaExpanded,
-        pressed: ariaPressed,
-        disabled: disabled || isLoading
-      })
+      // enhanceButton(buttonRef.current, {
+      //   label: ariaLabel,
+      //   describedBy: ariaDescribedBy,
+      //   expanded: ariaExpanded,
+      //   pressed: ariaPressed,
+      //   disabled: disabled || isLoading
+      // })
     }
-  }, [enhanceButton, ariaLabel, ariaDescribedBy, ariaExpanded, ariaPressed, disabled, isLoading])
+  }, [ariaLabel, ariaDescribedBy, ariaExpanded, ariaPressed, disabled, isLoading])
 
   // 클릭 핸들러 (접근성 알림 포함)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     if (announceOnClick) {
-      announce(announceOnClick, 'polite')
+      // announce(announceOnClick, 'polite')
+      console.log('Button clicked:', announceOnClick)
     }
     if (onClick) {
       onClick(event)

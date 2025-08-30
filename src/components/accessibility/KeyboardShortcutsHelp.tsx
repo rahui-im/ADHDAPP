@@ -1,133 +1,27 @@
 import React, { useState } from 'react'
-import { useAccessibility, useKeyboardShortcuts } from '../../hooks/useAccessibility'
-import { useDispatch } from 'react-redux'
-import { startTimer, pauseTimer, resumeTimer, stopTimer } from '../../store/timerSlice'
-import Modal from '../ui/Modal'
+import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../ui/Button'
-import { Card } from '../ui/Card'
+import Card from '../ui/Card'
+import { useAccessibility } from '../../hooks/useAccessibility'
 
 export const KeyboardShortcutsHelp: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { getShortcuts } = useAccessibility()
-  const dispatch = useDispatch()
 
-  // 전역 키보드 단축키 정의
-  const globalShortcuts = [
-    {
-      key: ' ',
-      action: () => {
-        // 스페이스바로 타이머 시작/일시정지
-        const timerState = document.querySelector('[data-timer-running]')
-        if (timerState?.getAttribute('data-timer-running') === 'true') {
-          dispatch(pauseTimer())
-        } else {
-          dispatch(resumeTimer())
-        }
-      },
-      description: '타이머 시작/일시정지'
-    },
-    {
-      key: 'Escape',
-      action: () => {
-        dispatch(stopTimer())
-      },
-      description: '타이머 정지'
-    },
-    {
-      key: 'h',
-      altKey: true,
-      action: () => setIsOpen(true),
-      description: '키보드 단축키 도움말 열기'
-    },
-    {
-      key: 'f',
-      ctrlKey: true,
-      action: () => {
-        // 집중 모드 토글 (실제 구현은 FocusMode 컴포넌트에서)
-        const focusButton = document.querySelector('[data-focus-toggle]') as HTMLButtonElement
-        focusButton?.click()
-      },
-      description: '집중 모드 토글'
-    },
-    {
-      key: 'n',
-      ctrlKey: true,
-      action: () => {
-        // 새 작업 생성
-        const newTaskButton = document.querySelector('[data-new-task]') as HTMLButtonElement
-        newTaskButton?.click()
-      },
-      description: '새 작업 생성'
-    },
-    {
-      key: '1',
-      altKey: true,
-      action: () => {
-        // 15분 포모도로 설정
-        const preset15 = document.querySelector('[data-timer-preset="15"]') as HTMLButtonElement
-        preset15?.click()
-      },
-      description: '15분 포모도로 설정'
-    },
-    {
-      key: '2',
-      altKey: true,
-      action: () => {
-        // 25분 포모도로 설정
-        const preset25 = document.querySelector('[data-timer-preset="25"]') as HTMLButtonElement
-        preset25?.click()
-      },
-      description: '25분 포모도로 설정'
-    },
-    {
-      key: '3',
-      altKey: true,
-      action: () => {
-        // 45분 포모도로 설정
-        const preset45 = document.querySelector('[data-timer-preset="45"]') as HTMLButtonElement
-        preset45?.click()
-      },
-      description: '45분 포모도로 설정'
-    }
+  const shortcuts = getShortcuts()
+
+  const defaultShortcuts = [
+    { key: 'Space', description: '타이머 시작/일시정지' },
+    { key: 'Escape', description: '모달 닫기' },
+    { key: 'Tab', description: '다음 요소로 이동' },
+    { key: 'Shift + Tab', description: '이전 요소로 이동' },
+    { key: 'Enter', description: '선택된 요소 활성화' },
+    { key: 'Ctrl + N', description: '새 작업 생성' },
+    { key: 'Ctrl + S', description: '저장' },
+    { key: '?', description: '단축키 도움말 (이 창)' }
   ]
 
-  // 키보드 단축키 등록
-  useKeyboardShortcuts(globalShortcuts)
-
-  const formatShortcut = (shortcut: typeof globalShortcuts[0]) => {
-    const keys = []
-    if (shortcut.ctrlKey) keys.push('Ctrl')
-    if (shortcut.altKey) keys.push('Alt')
-    if (shortcut.shiftKey) keys.push('Shift')
-    
-    let keyName = shortcut.key
-    if (keyName === ' ') keyName = 'Space'
-    if (keyName === 'Escape') keyName = 'Esc'
-    
-    keys.push(keyName)
-    return keys.join(' + ')
-  }
-
-  const shortcutCategories = [
-    {
-      title: '타이머 제어',
-      shortcuts: globalShortcuts.filter(s => 
-        s.description.includes('타이머') || s.description.includes('포모도로')
-      )
-    },
-    {
-      title: '작업 관리',
-      shortcuts: globalShortcuts.filter(s => 
-        s.description.includes('작업') || s.description.includes('집중')
-      )
-    },
-    {
-      title: '도움말',
-      shortcuts: globalShortcuts.filter(s => 
-        s.description.includes('도움말')
-      )
-    }
-  ]
+  const allShortcuts = shortcuts.length > 0 ? shortcuts : defaultShortcuts
 
   return (
     <>
@@ -135,76 +29,69 @@ export const KeyboardShortcutsHelp: React.FC = () => {
         variant="secondary"
         size="sm"
         onClick={() => setIsOpen(true)}
-        ariaLabel="키보드 단축키 도움말"
-        icon={
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-          </svg>
-        }
+        ariaLabel="키보드 단축키 도움말 열기"
+        className="rounded-full w-10 h-10 p-0"
       >
-        단축키 (Alt + H)
+        ?
       </Button>
 
-      <Modal
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title="키보드 단축키"
-        size="lg"
-        priority="low"
-      >
-        <div className="space-y-6">
-          <p className="text-gray-600">
-            키보드 단축키를 사용하여 더 빠르고 효율적으로 앱을 사용할 수 있습니다.
-          </p>
-
-          {shortcutCategories.map((category, categoryIndex) => (
-            <div key={categoryIndex}>
-              <h4 className="text-lg font-semibold mb-3 text-gray-800">
-                {category.title}
-              </h4>
-              
-              <Card className="p-4">
-                <div className="space-y-3">
-                  {category.shortcuts.map((shortcut, index) => (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-gray-700">{shortcut.description}</span>
-                      <kbd className="px-3 py-1 text-sm font-mono bg-gray-100 border border-gray-300 rounded-lg shadow-sm">
-                        {formatShortcut(shortcut)}
-                      </kbd>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          ))}
-
-          <div className="pt-4 border-t border-gray-200">
-            <h4 className="text-lg font-semibold mb-3 text-gray-800">
-              접근성 팁
-            </h4>
-            
-            <Card className="p-4 bg-blue-50 border-blue-200">
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>• <strong>Tab</strong> 키로 요소 간 이동할 수 있습니다</li>
-                <li>• <strong>Enter</strong> 또는 <strong>Space</strong>로 버튼을 클릭할 수 있습니다</li>
-                <li>• <strong>Escape</strong> 키로 모달이나 드롭다운을 닫을 수 있습니다</li>
-                <li>• 스크린 리더 사용자를 위한 라이브 영역이 설정되어 있습니다</li>
-                <li>• 모든 인터랙티브 요소에 적절한 ARIA 레이블이 있습니다</li>
-              </ul>
-            </Card>
-          </div>
-
-          <div className="flex justify-end">
-            <Button
-              variant="primary"
-              onClick={() => setIsOpen(false)}
-              ariaLabel="키보드 단축키 도움말 닫기"
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            onClick={() => setIsOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              확인
-            </Button>
-          </div>
-        </div>
-      </Modal>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-900">
+                  키보드 단축키
+                </h2>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsOpen(false)}
+                  ariaLabel="도움말 닫기"
+                  className="rounded-full w-8 h-8 p-0"
+                >
+                  ×
+                </Button>
+              </div>
+
+              <div className="space-y-3">
+                {allShortcuts.map((shortcut, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <span className="text-sm text-gray-600">
+                      {'description' in shortcut ? shortcut.description : shortcut.description}
+                    </span>
+                    <kbd className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded shadow-sm">
+                      {'key' in shortcut ? shortcut.key : shortcut.key}
+                    </kbd>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  💡 <strong>팁:</strong> Tab 키를 사용하여 모든 요소에 접근할 수 있습니다. 
+                  스크린 리더를 사용하는 경우 모든 상태 변화가 음성으로 안내됩니다.
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

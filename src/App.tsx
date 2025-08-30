@@ -17,6 +17,9 @@ import {
 } from './utils/lazyLoader'
 import { pwaManager } from './utils/pwaUtils'
 import { performanceMonitor } from './utils/performanceMonitor'
+import InstallPrompt from './components/pwa/InstallPrompt'
+import OnboardingTour from './components/onboarding/OnboardingTour'
+import { useOnboarding } from './hooks/useOnboarding'
 
 function App() {
   const dispatch = useAppDispatch()
@@ -25,6 +28,12 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [isInitializing, setIsInitializing] = useState(true)
   const { announce } = useAccessibility()
+  const { 
+    showOnboarding, 
+    completeOnboarding, 
+    skipOnboarding,
+    hasCompletedOnboarding 
+  } = useOnboarding()
 
   // 앱 초기화
   useEffect(() => {
@@ -114,6 +123,16 @@ function App() {
       <div className="fixed bottom-4 right-4 z-40">
         <KeyboardShortcutsHelp />
       </div>
+      
+      {/* PWA 설치 프롬프트 */}
+      <InstallPrompt />
+      
+      {/* 온보딩 투어 */}
+      <OnboardingTour
+        isOpen={showOnboarding && isAuthenticated}
+        onClose={skipOnboarding}
+        onComplete={completeOnboarding}
+      />
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux'
 import { store } from './store/store'
 import App from './App'
 import './index.css'
+import './i18n' // i18n 초기화
 
 // PWA 서비스 워커 등록
 if ('serviceWorker' in navigator && import.meta.env.PROD) {

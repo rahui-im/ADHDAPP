@@ -1,8 +1,16 @@
 import React from 'react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
-import { ProgressBar } from '../ui/ProgressBar'
-import { Task, TimerState } from '../../types'
+import Card from '../ui/Card'
+import Button from '../ui/Button'
+import { motion } from 'framer-motion'
+import { Task } from '../../types'
+
+interface TimerState {
+  mode: 'focus' | 'short-break' | 'long-break'
+  duration: number
+  remaining: number
+  isRunning: boolean
+  isPaused: boolean
+}
 
 interface CurrentTaskDisplayProps {
   task: Task
@@ -19,199 +27,117 @@ const CurrentTaskDisplay: React.FC<CurrentTaskDisplayProps> = ({
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
   }
 
-  const getTimerProgress = () => {
-    if (timerState.duration === 0) return 0
-    return Math.round(((timerState.duration - timerState.remaining) / timerState.duration) * 100)
-  }
-
-  const getTaskProgress = () => {
-    if (task.subtasks.length === 0) return 0
-    const completedSubtasks = task.subtasks.filter(st => st.isCompleted).length
-    return Math.round((completedSubtasks / task.subtasks.length) * 100)
-  }
-
-  const getModeLabel = (mode: TimerState['mode']) => {
-    switch (mode) {
-      case 'focus': return '집중 시간'
-      case 'short-break': return '짧은 휴식'
-      case 'long-break': return '긴 휴식'
-    }
-  }
-
-  const getModeColor = (mode: TimerState['mode']) => {
-    switch (mode) {
-      case 'focus': return 'text-blue-600'
-      case 'short-break': return 'text-green-600'
-      case 'long-break': return 'text-purple-600'
-    }
-  }
-
-  const getStatusIcon = () => {
-    if (timerState.isRunning) return '▶️'
-    if (timerState.isPaused) return '⏸️'
-    return '⏹️'
-  }
+  const progress = timerState.duration > 0 
+    ? ((timerState.duration - timerState.remaining) / timerState.duration) * 100 
+    : 0
 
   return (
-    <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+    <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-900">
-            현재 작업
-          </h2>
-          <p className="text-gray-600 text-sm">
-            집중해서 목표를 달성해보세요!
-          </p>
-        </div>
-        <div className="text-right">
-          <div className={`text-sm font-medium ${getModeColor(timerState.mode)}`}>
-            {getModeLabel(timerState.mode)}
-          </div>
-          <div className="text-xs text-gray-500">
-            사이클 {timerState.currentCycle}
-          </div>
+        <h2 className="text-xl font-bold text-gray-900">현재 작업</h2>
+        <div className="flex items-center space-x-2">
+          <div className={`w-3 h-3 rounded-full ${
+            timerState.isRunning ? 'bg-green-500 animate-pulse' : 
+            timerState.isPaused ? 'bg-yellow-500' : 'bg-gray-400'
+          }`} />
+          <span className="text-sm font-medium text-gray-600">
+            {timerState.isRunning ? '진행 중' : 
+             timerState.isPaused ? '일시정지' : '대기 중'}
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 작업 정보 */}
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {task.title}
-            </h3>
-            {task.description && (
-              <p className="text-gray-600 text-sm mb-3">
-                {task.description}
-              </p>
-            )}
-            
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
-              <span>⏱️ {task.estimatedDuration}분</span>
-              <span>📋 {task.category}</span>
-              <span className={`px-2 py-1 rounded ${
-                task.priority === 'high' ? 'bg-red-100 text-red-700' :
-                task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                'bg-green-100 text-green-700'
-              }`}>
-                {task.priority === 'high' ? '높음' : 
-                 task.priority === 'medium' ? '보통' : '낮음'}
-              </span>
-            </div>
-          </div>
-
-          {/* 작업 진행률 */}
-          {task.subtasks.length > 0 && (
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-700">
-                  작업 진행률
-                </span>
-                <span className="text-sm font-bold text-blue-600">
-                  {task.subtasks.filter(st => st.isCompleted).length}/{task.subtasks.length} 완료
-                </span>
-              </div>
-              <ProgressBar 
-                progress={getTaskProgress()} 
-                className="h-2 mb-2"
-                color="blue"
-              />
-              
-              {/* 하위 작업 목록 */}
-              <div className="space-y-1 max-h-32 overflow-y-auto">
-                {task.subtasks.map((subtask) => (
-                  <div
-                    key={subtask.id}
-                    className={`flex items-center space-x-2 text-sm p-2 rounded ${
-                      subtask.isCompleted ? 'bg-green-50 text-green-800' : 'bg-gray-50'
-                    }`}
-                  >
-                    <span className="text-lg">
-                      {subtask.isCompleted ? '✅' : '⭕'}
-                    </span>
-                    <span className={subtask.isCompleted ? 'line-through' : ''}>
-                      {subtask.title}
-                    </span>
-                    <span className="text-xs text-gray-500 ml-auto">
-                      {subtask.duration}분
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            {task.title}
+          </h3>
+          {task.description && (
+            <p className="text-gray-600 text-sm">
+              {task.description}
+            </p>
           )}
         </div>
 
-        {/* 타이머 정보 */}
-        <div className="space-y-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <span className="text-2xl">{getStatusIcon()}</span>
-              <span className={`text-sm font-medium ${getModeColor(timerState.mode)}`}>
-                {getModeLabel(timerState.mode)}
-              </span>
-            </div>
-            
-            <div className="text-4xl font-bold text-gray-900 mb-2">
-              {formatTime(timerState.remaining)}
-            </div>
-            
-            <div className="text-sm text-gray-500 mb-4">
-              {formatTime(timerState.duration)} 중 {formatTime(timerState.duration - timerState.remaining)} 경과
-            </div>
-            
-            {/* 타이머 진행률 */}
-            <div className="mb-4">
-              <ProgressBar 
-                progress={getTimerProgress()} 
-                className="h-3"
-                color={timerState.mode === 'focus' ? 'blue' : 'green'}
-              />
-            </div>
+        {/* 타이머 표시 */}
+        <div className="text-center">
+          <motion.div
+            className="text-4xl font-mono font-bold text-blue-600 mb-2"
+            animate={{ scale: timerState.isRunning ? [1, 1.05, 1] : 1 }}
+            transition={{ duration: 1, repeat: timerState.isRunning ? Infinity : 0 }}
+          >
+            {formatTime(timerState.remaining)}
+          </motion.div>
+          
+          <div className="text-sm text-gray-500 mb-4">
+            {timerState.mode === 'focus' && '집중 시간'}
+            {timerState.mode === 'short-break' && '짧은 휴식'}
+            {timerState.mode === 'long-break' && '긴 휴식'}
           </div>
 
-          {/* 타이머 컨트롤 버튼들 */}
-          <div className="flex space-x-2">
-            {!timerState.isRunning && !timerState.isPaused && (
-              <Button variant="primary" className="flex-1">
-                시작
-              </Button>
-            )}
-            
-            {timerState.isRunning && (
-              <Button variant="secondary" className="flex-1">
-                일시정지
-              </Button>
-            )}
-            
-            {timerState.isPaused && (
-              <>
-                <Button variant="primary" className="flex-1">
-                  재시작
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  정지
-                </Button>
-              </>
-            )}
-            
-            {(timerState.isRunning || timerState.isPaused) && (
-              <Button variant="outline" size="sm">
-                ⏹️
-              </Button>
-            )}
+          {/* 진행률 바 */}
+          <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
+            <motion.div
+              className="bg-blue-500 h-3 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+            />
           </div>
+        </div>
 
-          {/* 사이클 정보 */}
-          <div className="text-center text-sm text-gray-600">
-            <div>현재 사이클: {timerState.currentCycle}</div>
-            <div>총 완료: {timerState.totalCycles}개</div>
-            {timerState.totalCycles > 0 && timerState.totalCycles % 3 === 0 && (
-              <div className="text-purple-600 font-medium mt-1">
-                🎉 긴 휴식 시간이에요!
-              </div>
-            )}
+        {/* 하위 작업 진행률 */}
+        {task.subtasks.length > 0 && (
+          <div>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">
+              하위 작업 ({task.subtasks.filter(st => st.isCompleted).length}/{task.subtasks.length})
+            </h4>
+            <div className="space-y-1">
+              {task.subtasks.slice(0, 3).map((subtask) => (
+                <div key={subtask.id} className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${
+                    subtask.isCompleted ? 'bg-green-500' : 'bg-gray-300'
+                  }`} />
+                  <span className={`text-sm ${
+                    subtask.isCompleted ? 'text-gray-500 line-through' : 'text-gray-700'
+                  }`}>
+                    {subtask.title}
+                  </span>
+                </div>
+              ))}
+              {task.subtasks.length > 3 && (
+                <div className="text-xs text-gray-500">
+                  +{task.subtasks.length - 3}개 더
+                </div>
+              )}
+            </div>
           </div>
+        )}
+
+        {/* 액션 버튼들 */}
+        <div className="flex space-x-2">
+          <Button
+            variant={timerState.isRunning ? "warning" : "primary"}
+            size="sm"
+            className="flex-1"
+            onClick={() => {
+              console.log('타이머 토글')
+              alert('타이머 기능은 아직 구현 중입니다!')
+            }}
+          >
+            {timerState.isRunning ? '일시정지' : '시작'}
+          </Button>
+          
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              console.log('작업 완료')
+              alert('작업 완료 기능은 아직 구현 중입니다!')
+            }}
+          >
+            완료
+          </Button>
         </div>
       </div>
     </Card>

@@ -1,7 +1,8 @@
 import { useEffect, useCallback, useRef } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '../store'
-import { accessibilityService, KeyboardShortcut, FocusTrapOptions } from '../services/accessibilityService'
+import { accessibilityService } from '../services/accessibilityService'
+import type { KeyboardShortcut, FocusTrapOptions } from '../services/accessibilityService'
 
 export const useAccessibility = () => {
   const timerState = useSelector((state: RootState) => state.timer)

@@ -1,5 +1,7 @@
 import React from 'react'
-import { useAppSelector } from '../../store/store'
+import { useAppSelector, useAppDispatch } from '../../store/store'
+import { createTask } from '../../store/taskSlice'
+import { toggleFocusMode } from '../../store/userSlice'
 import {
   selectTodayTasks,
   selectTodayPomodoros,
@@ -24,6 +26,7 @@ import { useAchievements } from '../../hooks/useAchievements'
 import { motion } from 'framer-motion'
 
 const Dashboard: React.FC = () => {
+  const dispatch = useAppDispatch()
   const todayTasks = useAppSelector(selectTodayTasks)
   const completedPomodoros = useAppSelector(selectTodayPomodoros)
   const currentStreak = useAppSelector(selectCurrentStreak)
@@ -49,6 +52,33 @@ const Dashboard: React.FC = () => {
 
   // 오늘의 총 집중 시간 계산 (완료된 포모도로 * 평균 시간)
   const totalFocusTime = completedPomodoros * 25 // 25분 기본값
+
+  // 실제 액션 핸들러들
+  const handleCreateTask = async () => {
+    try {
+      await dispatch(createTask({
+        title: '새로운 작업',
+        description: '설명을 입력하세요',
+        estimatedDuration: 25,
+        priority: 'medium',
+        category: '업무',
+        isFlexible: true
+      })).unwrap()
+      alert('새 작업이 생성되었습니다!')
+    } catch (error) {
+      alert('작업 생성에 실패했습니다.')
+    }
+  }
+
+  const handleToggleFocusMode = () => {
+    dispatch(toggleFocusMode())
+    alert('집중 모드가 토글되었습니다!')
+  }
+
+  const handleViewAnalytics = () => {
+    // 분석 페이지로 이동하는 로직 (나중에 라우터 구현 시)
+    alert('분석 페이지로 이동합니다!')
+  }
 
   return (
     <div className="space-y-6 p-6">
@@ -162,12 +192,39 @@ const Dashboard: React.FC = () => {
         />
       </div>
 
+      {/* 테스트 버튼 */}
+      <div className="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg">
+        <h3 className="text-lg font-bold mb-2">🧪 버튼 테스트</h3>
+        <div className="flex gap-2">
+          <button 
+            className="px-4 py-2 bg-red-500 text-white rounded"
+            onClick={() => {
+              console.log('일반 HTML 버튼 클릭됨!')
+              alert('일반 HTML 버튼이 동작합니다!')
+            }}
+          >
+            일반 HTML 버튼
+          </button>
+          
+          <Button 
+            variant="primary"
+            onClick={() => {
+              console.log('커스텀 Button 컴포넌트 클릭됨!')
+              alert('커스텀 Button 컴포넌트가 동작합니다!')
+            }}
+          >
+            커스텀 Button
+          </Button>
+        </div>
+      </div>
+
       {/* 빠른 액션 버튼들 */}
       <div className="flex flex-wrap gap-4">
         <Button 
           variant="primary" 
           size="lg"
           className="flex-1 min-w-[200px]"
+          onClick={handleCreateTask}
         >
           새 작업 추가
         </Button>
@@ -175,6 +232,7 @@ const Dashboard: React.FC = () => {
           variant="secondary" 
           size="lg"
           className="flex-1 min-w-[200px]"
+          onClick={handleToggleFocusMode}
         >
           집중 모드 시작
         </Button>
@@ -182,6 +240,7 @@ const Dashboard: React.FC = () => {
           variant="outline" 
           size="lg"
           className="flex-1 min-w-[200px]"
+          onClick={handleViewAnalytics}
         >
           분석 보기
         </Button>

@@ -1,314 +1,421 @@
-import React, { useState, useRef } from 'react'
-import { useDataBackup, useAutoBackupMonitor } from '../../hooks/useDataBackup'
-import { Button } from '../ui/Button'
-import { Modal } from '../ui/Modal'
-import { Card } from '../ui/Card'
-import { Toast } from '../ui/Toast'
+import React, { useState, useEffect } from 'react'
+import { dataBackupService } from '../../services/dataBackupService'
+import Button from '../ui/Button'
+import Card from '../ui/Card'
+import { 
+  ArrowDownTrayIcon, 
+  ArrowUpTrayIcon, 
+  TrashIcon,
+  DocumentArrowDownIcon,
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  CloudArrowDownIcon,
+  ShieldCheckIcon
+} from '@heroicons/react/24/outline'
 
 interface BackupManagerProps {
-  className?: string
+  onClose?: () => void
 }
 
-export const BackupManager: React.FC<BackupManagerProps> = ({ className = '' }) => {
-  const {
-    isCreating,
-    isRestoring,
-    isLoading,
-    error,
-    backupList,
-    createBackup,
-    downloadBackup,
-    restoreFromFile,
-    restoreFromStored,
-    deleteBackup,
-    handleStorageFailure,
-    getBackupStatus,
-    formatFileSize,
-    validateBackupFile,
-    clearError,
-  } = useDataBackup()
-
-  const { isHealthy: isBackupHealthy } = useAutoBackupMonitor()
-  
-  const [showRestoreModal, setShowRestoreModal] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null)
-  const [restoreOptions, setRestoreOptions] = useState({
-    overwriteExisting: false,
-    skipDuplicates: true,
-    restoreTimerState: false,
-    createBackupBeforeRestore: true,
-  })
+export const BackupManager: React.FC<BackupManagerProps> = ({ onClose }) => {
+  const [backups, setBackups] = useState<any[]>([])
+  const [isCreatingBackup, setIsCreatingBackup] = useState(false)
+  const [isRestoring, setIsRestoring] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [fileValidation, setFileValidation] = useState<{
-    isValid: boolean
-    error?: string
-    metadata?: any
-  } | null>(null)
-  const [showToast, setShowToast] = useState<{
-    message: string
-    type: 'success' | 'error' | 'warning'
-  } | null>(null)
+  const [restoreResult, setRestoreResult] = useState<any>(null)
+  const [backupOptions, setBackupOptions] = useState({
+    includeAnalytics: true,
+    includeSettings: true,
+    includePersonalData: true
+  })
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const backupStatus = getBackupStatus()
+  useEffect(() => {
+    loadBackups()
+  }, [])
 
-  // 백업 생성
+  const loadBackups = () => {
+    try {
+      const backupList = dataBackupService.getBackupList()
+      setBackups(backupList)
+    } catch (error) {
+      console.error('백업 목록 로드 실패:', error)
+    }
+  }
+
   const handleCreateBackup = async () => {
-    const success = await createBackup()
-    if (success) {
-      setShowToast({
-        message: '백업이 성공적으로 생성되었습니다.',
-        type: 'success',
+    setIsCreatingBackup(true)
+    try {
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-')
+      const filename = `adhd-timer-backup-${timestamp}.json`
+      
+      await dataBackupService.downloadBackup(filename, backupOptions)
+      loadBackups()
+      
+      // 성공 메시지
+      setRestoreResult({
+        success: true,
+        message: '백업 파일이 다운로드되었습니다.'
       })
+      
+      setTimeout(() => setRestoreResult(null), 3000)
+    } catch (error) {
+      console.error('백업 생성 실패:', error)
+      setRestoreResult({
+        success: false,
+        message: '백업 생성에 실패했습니다.'
+      })
+    } finally {
+      setIsCreatingBackup(false)
     }
   }
 
-  // 백업 다운로드
-  const handleDownloadBackup = async () => {
-    const success = await downloadBackup()
-    if (success) {
-      setShowToast({
-        message: '백업 파일이 다운로드되었습니다.',
-        type: 'success',
-      })
-    }
-  }
-
-  // 파일 선택
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
-
-    setSelectedFile(file)
-    
-    // 파일 유효성 검사
-    const validation = await validateBackupFile(file)
-    setFileValidation(validation)
-    
-    if (validation.isValid) {
-      setShowRestoreModal(true)
-    } else {
-      setShowToast({
-        message: validation.error || '유효하지 않은 백업 파일입니다.',
-        type: 'error',
-      })
+    if (file) {
+      if (!file.name.endsWith('.json')) {
+        alert('JSON 파일만 선택할 수 있습니다.')
+        return
+      }
+      
+      if (file.size > 50 * 1024 * 1024) { // 50MB 제한
+        alert('파일 크기가 너무 큽니다. (최대 50MB)')
+        return
+      }
+      
+      setSelectedFile(file)
+      setRestoreResult(null)
     }
   }
 
-  // 파일에서 복원
   const handleRestoreFromFile = async () => {
     if (!selectedFile) return
 
-    const result = await restoreFromFile(selectedFile, restoreOptions)
-    
-    if (result.success && result.result) {
-      const { restored, skipped, errors } = result.result
-      const totalRestored = Object.values(restored).reduce((sum, val) => 
-        sum + (typeof val === 'number' ? val : val ? 1 : 0), 0
-      )
-      
-      setShowToast({
-        message: `복원 완료: ${totalRestored}개 항목 복원, ${skipped}개 건너뜀${errors.length > 0 ? `, ${errors.length}개 오류` : ''}`,
-        type: errors.length > 0 ? 'warning' : 'success',
+    const confirmMessage = `
+백업 파일에서 데이터를 복원하시겠습니까?
+
+⚠️ 주의사항:
+- 현재 데이터와 중복되지 않는 항목만 추가됩니다
+- 기존 데이터는 덮어쓰지 않습니다
+- 복원 전 자동 백업이 생성됩니다
+
+계속하시겠습니까?`
+
+    if (!confirm(confirmMessage)) return
+
+    setIsRestoring(true)
+    try {
+      const result = await dataBackupService.restoreFromFile(selectedFile, {
+        overwriteExisting: false,
+        skipDuplicates: true,
+        createBackupBeforeRestore: true
       })
+      
+      setRestoreResult(result)
+      
+      if (result.restored) {
+        loadBackups()
+        
+        // 복원 완료 후 새로고침 권장
+        setTimeout(() => {
+          if (confirm('복원이 완료되었습니다. 변경사항을 적용하려면 페이지를 새로고침해야 합니다. 지금 새로고침하시겠습니까?')) {
+            window.location.reload()
+          }
+        }, 2000)
+      }
+    } catch (error) {
+      console.error('복원 실패:', error)
+      setRestoreResult({
+        success: false,
+        message: error instanceof Error ? error.message : '복원에 실패했습니다.'
+      })
+    } finally {
+      setIsRestoring(false)
     }
-    
-    setShowRestoreModal(false)
-    setSelectedFile(null)
-    setFileValidation(null)
   }
 
-  // 저장된 백업에서 복원
-  const handleRestoreFromStored = async (backupId: string) => {
-    const result = await restoreFromStored(backupId, restoreOptions)
-    
-    if (result.success && result.result) {
-      const { restored, skipped, errors } = result.result
-      const totalRestored = Object.values(restored).reduce((sum, val) => 
-        sum + (typeof val === 'number' ? val : val ? 1 : 0), 0
-      )
-      
-      setShowToast({
-        message: `복원 완료: ${totalRestored}개 항목 복원, ${skipped}개 건너뜀${errors.length > 0 ? `, ${errors.length}개 오류` : ''}`,
-        type: errors.length > 0 ? 'warning' : 'success',
+  const handleRestoreFromStoredBackup = async (backupId: string) => {
+    if (!confirm('이 백업으로 복원하시겠습니까? 현재 데이터가 변경될 수 있습니다.')) {
+      return
+    }
+
+    setIsRestoring(true)
+    try {
+      const backupData = dataBackupService.getStoredBackup(backupId)
+      if (!backupData) {
+        throw new Error('백업 데이터를 찾을 수 없습니다.')
+      }
+
+      const result = await dataBackupService.restoreBackup(backupData, {
+        overwriteExisting: false,
+        skipDuplicates: true,
+        createBackupBeforeRestore: true
       })
+      
+      setRestoreResult(result)
+      
+      if (result.restored) {
+        loadBackups()
+        setTimeout(() => {
+          if (confirm('복원이 완료되었습니다. 페이지를 새로고침하시겠습니까?')) {
+            window.location.reload()
+          }
+        }, 2000)
+      }
+    } catch (error) {
+      console.error('저장된 백업 복원 실패:', error)
+      setRestoreResult({
+        success: false,
+        message: error instanceof Error ? error.message : '백업 복원에 실패했습니다.'
+      })
+    } finally {
+      setIsRestoring(false)
     }
   }
 
-  // 백업 삭제
   const handleDeleteBackup = (backupId: string) => {
-    const success = deleteBackup(backupId)
-    if (success) {
-      setShowToast({
-        message: '백업이 삭제되었습니다.',
-        type: 'success',
-      })
+    if (confirm('이 백업을 삭제하시겠습니까?')) {
+      const success = dataBackupService.deleteBackup(backupId)
+      if (success) {
+        loadBackups()
+      } else {
+        alert('백업 삭제에 실패했습니다.')
+      }
     }
-    setShowDeleteConfirm(null)
   }
 
-  // 스토리지 복구
-  const handleStorageRecovery = async () => {
-    const result = await handleStorageFailure()
-    
-    if (result.success) {
-      setShowToast({
-        message: '스토리지 복구가 완료되었습니다.',
-        type: 'success',
-      })
-    } else {
-      setShowToast({
-        message: '스토리지 복구에 실패했습니다.',
-        type: 'error',
-      })
-    }
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const formatDate = (date: Date): string => {
+    return new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date)
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
-      {/* 백업 상태 */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">백업 상태</h3>
-          <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-            isBackupHealthy 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {isBackupHealthy ? '정상' : '주의 필요'}
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <div className="text-gray-500">전체 백업</div>
-            <div className="font-semibold">{backupStatus.totalBackups}개</div>
-          </div>
-          <div>
-            <div className="text-gray-500">자동 백업</div>
-            <div className="font-semibold">{backupStatus.autoBackups}개</div>
-          </div>
-          <div>
-            <div className="text-gray-500">수동 백업</div>
-            <div className="font-semibold">{backupStatus.manualBackups}개</div>
-          </div>
-          <div>
-            <div className="text-gray-500">총 크기</div>
-            <div className="font-semibold">{formatFileSize(backupStatus.totalSize)}</div>
-          </div>
-        </div>
-        
-        {backupStatus.lastAutoBackup && (
-          <div className="mt-4 text-sm text-gray-600">
-            마지막 자동 백업: {backupStatus.lastAutoBackup.toLocaleString()}
-          </div>
-        )}
-      </Card>
-
+    <div className="space-y-6">
       {/* 백업 생성 */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">백업 생성</h3>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            onClick={handleCreateBackup}
-            disabled={isCreating}
-            className="flex-1"
-          >
-            {isCreating ? '백업 생성 중...' : '새 백업 생성'}
-          </Button>
-          <Button
-            onClick={handleDownloadBackup}
-            disabled={isLoading}
-            variant="outline"
-            className="flex-1"
-          >
-            {isLoading ? '다운로드 중...' : '백업 다운로드'}
-          </Button>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+          <CloudArrowDownIcon className="w-5 h-5" />
+          <span>데이터 백업 생성</span>
+        </h3>
+        <p className="text-gray-600 mb-4">
+          현재 데이터를 JSON 파일로 내보내어 안전하게 보관하세요.
+        </p>
+        
+        {/* 백업 옵션 */}
+        <div className="mb-4 space-y-2">
+          <h4 className="text-sm font-medium text-gray-700">백업 옵션</h4>
+          <div className="space-y-2">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={backupOptions.includeAnalytics}
+                onChange={(e) => setBackupOptions(prev => ({ ...prev, includeAnalytics: e.target.checked }))}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm text-gray-700">분석 데이터 포함</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={backupOptions.includeSettings}
+                onChange={(e) => setBackupOptions(prev => ({ ...prev, includeSettings: e.target.checked }))}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm text-gray-700">설정 데이터 포함</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={backupOptions.includePersonalData}
+                onChange={(e) => setBackupOptions(prev => ({ ...prev, includePersonalData: e.target.checked }))}
+                className="rounded border-gray-300"
+              />
+              <span className="text-sm text-gray-700">개인정보 포함 (이름, 작업 제목 등)</span>
+            </label>
+          </div>
         </div>
+        
+        <Button
+          onClick={handleCreateBackup}
+          disabled={isCreatingBackup}
+          className="flex items-center space-x-2"
+        >
+          <ArrowDownTrayIcon className="w-5 h-5" />
+          <span>{isCreatingBackup ? '백업 생성 중...' : '백업 다운로드'}</span>
+        </Button>
       </Card>
 
       {/* 백업 복원 */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">백업 복원</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+          <ArrowUpTrayIcon className="w-5 h-5" />
+          <span>데이터 복원</span>
+        </h3>
+        <p className="text-gray-600 mb-4">
+          백업 파일에서 데이터를 복원합니다. 기존 데이터는 보존되며 새로운 항목만 추가됩니다.
+        </p>
+        
         <div className="space-y-4">
           <div>
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isRestoring}
-              variant="outline"
-              className="w-full"
-            >
-              {isRestoring ? '복원 중...' : '파일에서 복원'}
-            </Button>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              백업 파일 선택 (.json)
+            </label>
             <input
-              ref={fileInputRef}
               type="file"
               accept=".json"
               onChange={handleFileSelect}
-              className="hidden"
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
             />
           </div>
           
-          {/* 응급 복구 */}
-          <Button
-            onClick={handleStorageRecovery}
-            disabled={isLoading}
-            variant="outline"
-            className="w-full text-orange-600 border-orange-300 hover:bg-orange-50"
-          >
-            {isLoading ? '복구 중...' : '응급 데이터 복구'}
-          </Button>
+          {selectedFile && (
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-2">
+                <DocumentArrowDownIcon className="w-5 h-5 text-gray-500" />
+                <span className="text-sm text-gray-700">{selectedFile.name}</span>
+                <span className="text-xs text-gray-500">
+                  ({formatFileSize(selectedFile.size)})
+                </span>
+              </div>
+              
+              <Button
+                onClick={handleRestoreFromFile}
+                disabled={isRestoring}
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <ArrowUpTrayIcon className="w-4 h-4" />
+                <span>{isRestoring ? '복원 중...' : '복원 시작'}</span>
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
 
+      {/* 복원 결과 */}
+      {restoreResult && (
+        <Card className={`p-6 ${restoreResult.success !== false ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
+          <div className="flex items-start space-x-3">
+            {restoreResult.success !== false ? (
+              <CheckCircleIcon className="w-6 h-6 text-green-600 flex-shrink-0" />
+            ) : (
+              <ExclamationTriangleIcon className="w-6 h-6 text-red-600 flex-shrink-0" />
+            )}
+            
+            <div className="flex-1">
+              <h4 className={`font-medium ${restoreResult.success !== false ? 'text-green-900' : 'text-red-900'}`}>
+                {restoreResult.success !== false ? '작업 완료' : '작업 실패'}
+              </h4>
+              <p className={`text-sm ${restoreResult.success !== false ? 'text-green-700' : 'text-red-700'}`}>
+                {restoreResult.message}
+              </p>
+              
+              {restoreResult.restored && (
+                <div className="mt-2 text-sm text-green-700">
+                  <p>복원된 항목:</p>
+                  <ul className="list-disc list-inside ml-4">
+                    {restoreResult.restored.user && <li>사용자 정보</li>}
+                    {restoreResult.restored.tasks > 0 && <li>{restoreResult.restored.tasks}개 작업</li>}
+                    {restoreResult.restored.sessions > 0 && <li>{restoreResult.restored.sessions}개 세션</li>}
+                    {restoreResult.restored.dailyStats > 0 && <li>{restoreResult.restored.dailyStats}개 일일 통계</li>}
+                    {restoreResult.restored.settings > 0 && <li>{restoreResult.restored.settings}개 설정</li>}
+                  </ul>
+                  {restoreResult.skipped > 0 && (
+                    <p className="mt-1">건너뛴 항목: {restoreResult.skipped}개 (중복)</p>
+                  )}
+                </div>
+              )}
+              
+              {restoreResult.errors && restoreResult.errors.length > 0 && (
+                <div className="mt-2 text-sm text-red-700">
+                  <p>오류:</p>
+                  <ul className="list-disc list-inside ml-4">
+                    {restoreResult.errors.map((error: string, index: number) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* 저장된 백업 목록 */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">저장된 백업</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+          <ClockIcon className="w-5 h-5" />
+          <span>저장된 백업</span>
+        </h3>
         
-        {backupList.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            저장된 백업이 없습니다.
+        {backups.length === 0 ? (
+          <div className="text-center py-8">
+            <ClockIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">저장된 백업이 없습니다.</p>
+            <p className="text-sm text-gray-400 mt-1">
+              자동 백업은 24시간마다 생성됩니다.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {backupList.map((backup) => (
-              <div
-                key={backup.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-              >
-                <div className="flex-1">
-                  <div className="font-medium text-gray-900">
-                    {backup.name}
-                    {backup.isAutoBackup && (
-                      <span className="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                        자동
-                      </span>
+            {backups.map((backup) => (
+              <div key={backup.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div className="flex items-center space-x-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    backup.isAutoBackup ? 'bg-blue-100' : 'bg-green-100'
+                  }`}>
+                    {backup.isAutoBackup ? (
+                      <ClockIcon className="w-5 h-5 text-blue-600" />
+                    ) : (
+                      <ShieldCheckIcon className="w-5 h-5 text-green-600" />
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {backup.createdAt.toLocaleString()} • {formatFileSize(backup.size)}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    포함 데이터: {backup.dataTypes.join(', ')}
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {backup.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatDate(backup.createdAt)} • {formatFileSize(backup.size)}
+                    </p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      {backup.dataTypes.map((type: string) => (
+                        <span key={type} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {type}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
                 
-                <div className="flex gap-2">
+                <div className="flex items-center space-x-2">
                   <Button
-                    onClick={() => handleRestoreFromStored(backup.id)}
+                    onClick={() => handleRestoreFromStoredBackup(backup.id)}
                     disabled={isRestoring}
-                    size="sm"
                     variant="outline"
+                    size="sm"
                   >
                     복원
                   </Button>
                   <Button
-                    onClick={() => setShowDeleteConfirm(backup.id)}
+                    onClick={() => handleDeleteBackup(backup.id)}
+                    variant="ghost"
                     size="sm"
-                    variant="outline"
-                    className="text-red-600 border-red-300 hover:bg-red-50"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    삭제
+                    <TrashIcon className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -317,162 +424,33 @@ export const BackupManager: React.FC<BackupManagerProps> = ({ className = '' }) 
         )}
       </Card>
 
-      {/* 복원 옵션 모달 */}
-      <Modal
-        isOpen={showRestoreModal}
-        onClose={() => {
-          setShowRestoreModal(false)
-          setSelectedFile(null)
-          setFileValidation(null)
-        }}
-        title="백업 복원"
-      >
-        <div className="space-y-4">
-          {fileValidation?.metadata && (
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">백업 정보</h4>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div>생성일: {new Date(fileValidation.metadata.createdAt).toLocaleString()}</div>
-                <div>버전: {fileValidation.metadata.version}</div>
-                <div>크기: {formatFileSize(fileValidation.metadata.totalSize)}</div>
-                <div>데이터 유형: {fileValidation.metadata.dataTypes.join(', ')}</div>
-              </div>
-            </div>
-          )}
-          
-          <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">복원 옵션</h4>
-            
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={restoreOptions.overwriteExisting}
-                onChange={(e) => setRestoreOptions(prev => ({
-                  ...prev,
-                  overwriteExisting: e.target.checked
-                }))}
-                className="mr-2"
-              />
-              <span className="text-sm">기존 데이터 덮어쓰기</span>
-            </label>
-            
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={restoreOptions.skipDuplicates}
-                onChange={(e) => setRestoreOptions(prev => ({
-                  ...prev,
-                  skipDuplicates: e.target.checked
-                }))}
-                className="mr-2"
-              />
-              <span className="text-sm">중복 데이터 건너뛰기</span>
-            </label>
-            
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={restoreOptions.createBackupBeforeRestore}
-                onChange={(e) => setRestoreOptions(prev => ({
-                  ...prev,
-                  createBackupBeforeRestore: e.target.checked
-                }))}
-                className="mr-2"
-              />
-              <span className="text-sm">복원 전 현재 데이터 백업</span>
-            </label>
-            
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={restoreOptions.restoreTimerState}
-                onChange={(e) => setRestoreOptions(prev => ({
-                  ...prev,
-                  restoreTimerState: e.target.checked
-                }))}
-                className="mr-2"
-              />
-              <span className="text-sm text-orange-600">타이머 상태도 복원 (주의)</span>
-            </label>
-          </div>
-          
-          <div className="flex gap-3 pt-4">
-            <Button
-              onClick={handleRestoreFromFile}
-              disabled={isRestoring}
-              className="flex-1"
-            >
-              {isRestoring ? '복원 중...' : '복원 시작'}
-            </Button>
-            <Button
-              onClick={() => {
-                setShowRestoreModal(false)
-                setSelectedFile(null)
-                setFileValidation(null)
-              }}
-              variant="outline"
-              className="flex-1"
-            >
-              취소
-            </Button>
+      {/* 주의사항 */}
+      <Card className="p-6 border-yellow-200 bg-yellow-50">
+        <div className="flex items-start space-x-3">
+          <ExclamationTriangleIcon className="w-6 h-6 text-yellow-600 flex-shrink-0" />
+          <div>
+            <h4 className="font-medium text-yellow-900">백업 및 복원 안내</h4>
+            <ul className="text-sm text-yellow-700 mt-2 space-y-1">
+              <li>• 자동 백업은 24시간마다 생성되며 최대 10개까지 보관됩니다</li>
+              <li>• 복원 시 기존 데이터는 보존되고 새로운 항목만 추가됩니다</li>
+              <li>• 중요한 데이터는 정기적으로 수동 백업하여 안전한 곳에 보관하세요</li>
+              <li>• 복원 후에는 페이지를 새로고침하여 변경사항을 적용하세요</li>
+              <li>• 개인정보가 포함된 백업 파일은 안전하게 관리하세요</li>
+            </ul>
           </div>
         </div>
-      </Modal>
+      </Card>
 
-      {/* 삭제 확인 모달 */}
-      <Modal
-        isOpen={!!showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(null)}
-        title="백업 삭제"
-      >
-        <div className="space-y-4">
-          <p className="text-gray-600">
-            이 백업을 삭제하시겠습니까? 삭제된 백업은 복구할 수 없습니다.
-          </p>
-          
-          <div className="flex gap-3">
-            <Button
-              onClick={() => showDeleteConfirm && handleDeleteBackup(showDeleteConfirm)}
-              className="flex-1 bg-red-600 hover:bg-red-700"
-            >
-              삭제
-            </Button>
-            <Button
-              onClick={() => setShowDeleteConfirm(null)}
-              variant="outline"
-              className="flex-1"
-            >
-              취소
-            </Button>
-          </div>
+      {/* 닫기 버튼 */}
+      {onClose && (
+        <div className="flex justify-end">
+          <Button onClick={onClose} variant="outline">
+            닫기
+          </Button>
         </div>
-      </Modal>
-
-      {/* 에러 표시 */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-red-800">{error}</div>
-            <Button
-              onClick={clearError}
-              size="sm"
-              variant="outline"
-              className="text-red-600 border-red-300"
-            >
-              닫기
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* 토스트 알림 */}
-      {showToast && (
-        <Toast
-          message={showToast.message}
-          type={showToast.type}
-          onClose={() => setShowToast(null)}
-        />
       )}
     </div>
   )
 }
+
+export default BackupManager
