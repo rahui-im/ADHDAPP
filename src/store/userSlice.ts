@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { User, UserPreferences, UserSettings } from '../types'
 
-interface UserState {
+export interface UserState {
   currentUser: User | null
   isAuthenticated: boolean
   energyLevel: 'low' | 'medium' | 'high'

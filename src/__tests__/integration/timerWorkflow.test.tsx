@@ -1,13 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
-import { App } from '../../App'
+import App from '../../App'
 import taskReducer from '../../store/taskSlice'
 import timerReducer from '../../store/timerSlice'
 import userReducer from '../../store/userSlice'
 import analyticsReducer from '../../store/analyticsSlice'
-import { Task } from '../../types'
+// import { Task } from '../../types' - unused import
 
 // Mock services
 jest.mock('../../services/timerService', () => ({
@@ -89,8 +89,8 @@ const createTestStore = () => {
             notificationsEnabled: true,
           },
           settings: {
-            theme: 'light',
-            language: 'ko',
+            theme: 'light' as const,
+            language: 'ko' as const,
             timezone: 'Asia/Seoul',
             focusMode: {
               hideNotifications: true,
@@ -99,17 +99,17 @@ const createTestStore = () => {
               inactivityThreshold: 15,
             },
             timer: {
-              focusDurations: [15, 25, 45],
-              shortBreakDurations: [5, 10, 15],
-              longBreakDuration: 25,
-              cyclesBeforeLongBreak: 3,
+              focusDurations: [15, 25, 45] as [15, 25, 45],
+              shortBreakDurations: [5, 10, 15] as [5, 10, 15],
+              longBreakDuration: 25 as 25,
+              cyclesBeforeLongBreak: 3 as 3,
             },
           },
           createdAt: new Date(),
           lastActiveAt: new Date(),
         },
         isAuthenticated: true,
-        energyLevel: 'medium',
+        energyLevel: 'medium' as const,
         focusMode: false,
         loading: false,
         error: null,
@@ -123,7 +123,7 @@ const createTestStore = () => {
         error: null,
       },
       timer: {
-        mode: 'focus',
+        mode: 'focus' as const,
         duration: 1500,
         remaining: 1500,
         isRunning: false,
@@ -132,10 +132,10 @@ const createTestStore = () => {
         totalCycles: 0,
         currentTaskId: undefined,
         settings: {
-          focusDurations: [15, 25, 45],
-          shortBreakDurations: [5, 10, 15],
-          longBreakDuration: 25,
-          cyclesBeforeLongBreak: 3,
+          focusDurations: [15, 25, 45] as [15, 25, 45],
+          shortBreakDurations: [5, 10, 15] as [5, 10, 15],
+          longBreakDuration: 25 as 25,
+          cyclesBeforeLongBreak: 3 as 3,
         },
         isInitialized: true,
       },
@@ -257,7 +257,7 @@ describe('Timer Workflow Integration', () => {
 
   it('should handle timer interruption and recovery', async () => {
     const { timerService } = require('../../services/timerService')
-    const { analyticsService } = require('../../services/analyticsService')
+    // const { analyticsService } = require('../../services/analyticsService') - unused
     
     renderApp()
 

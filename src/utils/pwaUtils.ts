@@ -11,10 +11,7 @@ interface PWAUpdateInfo {
   updateServiceWorker: () => Promise<void>
 }
 
-interface PWAInstallInfo {
-  isInstallable: boolean
-  installApp: () => Promise<void>
-}
+// Removed unused PWAInstallInfo interface
 
 class PWAManager {
   private wb: Workbox | null = null
@@ -35,7 +32,7 @@ class PWAManager {
       this.wb = new Workbox('/sw.js')
       
       // 서비스 워커 업데이트 감지
-      this.wb.addEventListener('waiting', (event) => {
+      this.wb.addEventListener('waiting', () => {
         this.handleServiceWorkerUpdate()
       })
 
@@ -231,7 +228,7 @@ class PWAManager {
       // 예시: 오프라인 중 생성된 작업들 동기화
       const offlineData = localStorage.getItem('offline-sync-queue')
       if (offlineData) {
-        const data = JSON.parse(offlineData)
+        // const data = JSON.parse(offlineData) - unused variable
         // 서버로 데이터 전송 로직
         localStorage.removeItem('offline-sync-queue')
         console.log('✅ Offline data synced successfully')

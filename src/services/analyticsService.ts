@@ -1,6 +1,6 @@
 import { Session, DailyStats, WeeklyInsight, Task, DistractionType } from '../types'
 import { IndexedDBManager } from './indexedDBService'
-import { store } from '../store'
+import { store } from '../store/store'
 import { addSession, updateDailyStats, generateWeeklyInsight, updateStreak } from '../store/analyticsSlice'
 
 // 분석 서비스 클래스

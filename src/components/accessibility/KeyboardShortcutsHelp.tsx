@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../ui/Button'
-import Card from '../ui/Card'
+// import Card from '../ui/Card' - unused
 import { useAccessibility } from '../../hooks/useAccessibility'
 
 export const KeyboardShortcutsHelp: React.FC = () => {
@@ -73,10 +73,10 @@ export const KeyboardShortcutsHelp: React.FC = () => {
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <span className="text-sm text-gray-600">
-                      {'description' in shortcut ? shortcut.description : shortcut.description}
+                      {shortcut.description}
                     </span>
                     <kbd className="px-2 py-1 text-xs font-mono bg-white border border-gray-300 rounded shadow-sm">
-                      {'key' in shortcut ? shortcut.key : shortcut.key}
+                      {shortcut.key}
                     </kbd>
                   </div>
                 ))}

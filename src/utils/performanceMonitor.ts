@@ -2,6 +2,7 @@
  * 성능 모니터링 유틸리티
  * 번들 크기, 로딩 시간, 메모리 사용량 등을 모니터링합니다.
  */
+import React from 'react'
 
 interface PerformanceMetrics {
   bundleSize?: number

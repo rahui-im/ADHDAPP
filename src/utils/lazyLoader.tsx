@@ -13,7 +13,7 @@ export const withLazyLoading = <P extends object>(
   
   return (props: P) => (
     <Suspense fallback={fallback || <Loading />}>
-      <LazyComponent {...props} />
+      <LazyComponent {...(props as any)} />
     </Suspense>
   )
 }

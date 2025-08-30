@@ -3,7 +3,7 @@ import { motion, HTMLMotionProps } from 'framer-motion'
 // import { useAccessibility } from '../../hooks/useAccessibility'
 
 interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'children'> {
-  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'focus' | 'outline'
+  variant?: 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'focus' | 'outline' | 'ghost'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   isLoading?: boolean
   children: React.ReactNode
@@ -48,6 +48,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
     danger: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white focus:ring-red-300 border-2 border-red-600',
     focus: 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white focus:ring-blue-300 border-2 border-blue-600 animate-pulse-slow',
     outline: 'bg-transparent hover:bg-gray-50 active:bg-gray-100 text-gray-700 focus:ring-gray-300 border-2 border-gray-300 hover:border-gray-400',
+    ghost: 'bg-transparent hover:bg-gray-100 active:bg-gray-200 text-gray-600 focus:ring-gray-300 border-2 border-transparent',
   }
   
   // ADHD 친화적 크기: 더 큰 터치 타겟, 읽기 쉬운 텍스트

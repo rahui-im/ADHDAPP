@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Session, DailyStats, WeeklyInsight, AnalyticsData, DistractionType } from '../types'
+import { Session, DailyStats, WeeklyInsight, DistractionType } from '../types'
 
 interface AnalyticsState {
   sessions: Session[]
@@ -96,7 +96,7 @@ const analyticsSlice = createSlice({
 
     // 연속 달성 일수 업데이트
     updateStreak: (state, action: PayloadAction<{ completed: boolean; date: Date }>) => {
-      const { completed, date } = action.payload
+      const { completed } = action.payload
       
       if (completed) {
         state.currentStreak += 1

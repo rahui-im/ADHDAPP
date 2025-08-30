@@ -15,7 +15,7 @@ import {
   LazyAnalyticsPage,
   LazySettingsPage
 } from './utils/lazyLoader'
-import { pwaManager } from './utils/pwaUtils'
+// import { pwaManager } from './utils/pwaUtils' - unused
 import { performanceMonitor } from './utils/performanceMonitor'
 import InstallPrompt from './components/pwa/InstallPrompt'
 import OnboardingTour from './components/onboarding/OnboardingTour'
@@ -31,8 +31,8 @@ function App() {
   const { 
     showOnboarding, 
     completeOnboarding, 
-    skipOnboarding,
-    hasCompletedOnboarding 
+    skipOnboarding
+    // hasCompletedOnboarding - unused
   } = useOnboarding()
 
   // 앱 초기화

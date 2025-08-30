@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { TimerState, TimerSettings } from '../types'
 
-interface TimerSliceState extends TimerState {
+export interface TimerSliceState extends TimerState {
   settings: TimerSettings
   isInitialized: boolean
   lastStartTime?: number
@@ -112,11 +112,12 @@ const timerSlice = createSlice({
         }
       } else {
         // 휴식 완료 후 집중 모드로
+        const wasLongBreak = state.mode === 'long-break'
         state.mode = 'focus'
         state.duration = state.settings.focusDurations[1] * 60 // 기본 25분
         
         // 긴 휴식 후에는 새로운 사이클 시작
-        if (state.mode === 'long-break') {
+        if (wasLongBreak) {
           state.currentCycle = 1
         } else {
           state.currentCycle += 1

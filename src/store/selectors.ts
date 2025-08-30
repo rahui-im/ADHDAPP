@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from './store'
-import { Task, AnalyticsData } from '../types'
+import { AnalyticsData } from '../types'
 
 // Task 셀렉터들
 export const selectAllTasks = (state: RootState) => state.tasks.tasks
