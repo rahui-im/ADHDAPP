@@ -1,21 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { BrowserRouter } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from './store/store'
 import { selectCurrentUser, selectIsAuthenticated } from './store/selectors'
 import { initializeUser } from './store/userSlice'
 import { storageService } from './services'
-import Layout from './components/layout/Layout'
+import AppRouter from './router/AppRouter'
 import Button from './components/ui/Button'
 import Card from './components/ui/Card'
 import { KeyboardShortcutsHelp } from './components/accessibility/KeyboardShortcutsHelp'
 import { useAccessibility } from './hooks/useAccessibility'
-import {
-  LazyDashboardPage,
-  LazyTasksPage,
-  LazyTimerPage,
-  LazyAnalyticsPage,
-  LazySettingsPage
-} from './utils/lazyLoader'
-// import { pwaManager } from './utils/pwaUtils' - unused
 import { performanceMonitor } from './utils/performanceMonitor'
 import InstallPrompt from './components/pwa/InstallPrompt'
 import OnboardingTour from './components/onboarding/OnboardingTour'
@@ -25,14 +18,12 @@ function App() {
   const dispatch = useAppDispatch()
   const currentUser = useAppSelector(selectCurrentUser)
   const isAuthenticated = useAppSelector(selectIsAuthenticated)
-  const [currentPage, setCurrentPage] = useState('dashboard')
   const [isInitializing, setIsInitializing] = useState(true)
   const { announce } = useAccessibility()
   const { 
     showOnboarding, 
     completeOnboarding, 
     skipOnboarding
-    // hasCompletedOnboarding - unused
   } = useOnboarding()
 
   // 앱 초기화
@@ -67,22 +58,7 @@ function App() {
   // 사용자 등록 처리
   const handleUserSetup = (name: string) => {
     dispatch(initializeUser({ name }))
-  }
-
-  // 페이지 네비게이션
-  const handleNavigate = (page: string) => {
-    setCurrentPage(page)
-    
-    // 페이지 변경 알림
-    const pageNames: Record<string, string> = {
-      dashboard: '대시보드',
-      tasks: '작업 관리',
-      timer: '포모도로 타이머',
-      analytics: '분석',
-      settings: '설정'
-    }
-    
-    announce(`${pageNames[page] || page} 페이지로 이동했습니다`, 'polite')
+    announce('환영합니다! 앱 사용을 시작합니다.', 'polite')
   }
 
   // 로딩 중
@@ -102,38 +78,37 @@ function App() {
     return <WelcomeScreen onUserSetup={handleUserSetup} />
   }
 
-  // 메인 앱
+  // 메인 앱 with Router
   return (
-    <div className="app-container">
-      {/* 스킵 링크 */}
-      <a 
-        href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-lg z-50"
-      >
-        메인 콘텐츠로 건너뛰기
-      </a>
-      
-      <Layout currentPage={currentPage} onNavigate={handleNavigate}>
-        <main id="main-content" tabIndex={-1}>
-          {renderCurrentPage(currentPage)}
-        </main>
-      </Layout>
-      
-      {/* 키보드 단축키 도움말 */}
-      <div className="fixed bottom-4 right-4 z-40">
-        <KeyboardShortcutsHelp />
+    <BrowserRouter>
+      <div className="app-container">
+        {/* 스킵 링크 */}
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-primary-600 text-white px-4 py-2 rounded-lg z-50"
+        >
+          메인 콘텐츠로 건너뛰기
+        </a>
+        
+        {/* Router Configuration */}
+        <AppRouter />
+        
+        {/* 키보드 단축키 도움말 */}
+        <div className="fixed bottom-4 right-4 z-40">
+          <KeyboardShortcutsHelp />
+        </div>
+        
+        {/* PWA 설치 프롬프트 */}
+        <InstallPrompt />
+        
+        {/* 온보딩 투어 */}
+        <OnboardingTour
+          isOpen={showOnboarding && isAuthenticated}
+          onClose={skipOnboarding}
+          onComplete={completeOnboarding}
+        />
       </div>
-      
-      {/* PWA 설치 프롬프트 */}
-      <InstallPrompt />
-      
-      {/* 온보딩 투어 */}
-      <OnboardingTour
-        isOpen={showOnboarding && isAuthenticated}
-        onClose={skipOnboarding}
-        onComplete={completeOnboarding}
-      />
-    </div>
+    </BrowserRouter>
   )
 }
 
@@ -187,24 +162,6 @@ const WelcomeScreen: React.FC<{ onUserSetup: (name: string) => void }> = ({ onUs
       </Card>
     </div>
   )
-}
-
-// 현재 페이지 렌더링 (지연 로딩 적용)
-const renderCurrentPage = (page: string) => {
-  switch (page) {
-    case 'dashboard':
-      return <LazyDashboardPage />
-    case 'tasks':
-      return <LazyTasksPage />
-    case 'timer':
-      return <LazyTimerPage />
-    case 'analytics':
-      return <LazyAnalyticsPage />
-    case 'settings':
-      return <LazySettingsPage />
-    default:
-      return <LazyDashboardPage />
-  }
 }
 
 export default App

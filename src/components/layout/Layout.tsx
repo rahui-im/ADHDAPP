@@ -1,20 +1,16 @@
 import React from 'react'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import Button from '../ui/Button'
 
-interface LayoutProps {
-  children: React.ReactNode
-  currentPage: string
-  onNavigate: (page: string) => void
-}
-
-const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigate }) => {
+const Layout: React.FC = () => {
+  const location = useLocation()
+  
   const navigationItems = [
-    { id: 'dashboard', label: '대시보드', icon: '🏠' },
-    { id: 'tasks', label: '작업', icon: '📝' },
-    { id: 'timer', label: '타이머', icon: '⏰' },
-    { id: 'analytics', label: '분석', icon: '📊' },
-    { id: 'settings', label: '설정', icon: '⚙️' }
+    { path: '/dashboard', label: '대시보드', icon: '🏠' },
+    { path: '/tasks', label: '작업', icon: '📝' },
+    { path: '/timer', label: '타이머', icon: '⏰' },
+    { path: '/analytics', label: '분석', icon: '📊' },
+    { path: '/settings', label: '설정', icon: '⚙️' }
   ]
 
   return (
@@ -28,15 +24,20 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigate }) =>
           
           <ul className="space-y-2">
             {navigationItems.map((item) => (
-              <li key={item.id}>
-                <Button
-                  variant={currentPage === item.id ? 'primary' : 'secondary'}
-                  className="w-full justify-start"
-                  onClick={() => onNavigate(item.id)}
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `flex items-center w-full px-4 py-2 rounded-lg transition-colors duration-200 ${
+                      isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`
+                  }
                 >
                   <span className="mr-3 text-lg">{item.icon}</span>
-                  {item.label}
-                </Button>
+                  <span className="font-medium">{item.label}</span>
+                </NavLink>
               </li>
             ))}
           </ul>
@@ -46,14 +47,14 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onNavigate }) =>
       {/* 메인 콘텐츠 */}
       <main className="flex-1 overflow-auto">
         <motion.div
-          key={currentPage}
+          key={location.pathname}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
           className="h-full"
         >
-          {children}
+          <Outlet />
         </motion.div>
       </main>
     </div>
