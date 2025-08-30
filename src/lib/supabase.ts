@@ -22,11 +22,13 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 
 // 클라우드 동기화 활성화 여부 확인
 export const isCloudSyncEnabled = () => {
-  return (
-    import.meta.env.VITE_ENABLE_CLOUD_SYNC === 'true' &&
-    supabaseUrl &&
-    supabaseAnonKey
-  )
+  // 일단 비활성화
+  return false
+  // return (
+  //   import.meta.env.VITE_ENABLE_CLOUD_SYNC === 'true' &&
+  //   supabaseUrl &&
+  //   supabaseAnonKey
+  // )
 }
 
 // 현재 사용자 가져오기

@@ -10,7 +10,9 @@
       "Bash(npx tsc:*)",
       "Bash(npx vite build:*)",
       "Bash(npm run lint)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "WebFetch(domain:adhdapp-gamma.vercel.app)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
