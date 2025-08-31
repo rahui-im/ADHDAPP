@@ -1,186 +1,152 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { configureStore } from '@reduxjs/toolkit';
-import { BrowserRouter } from 'react-router-dom';
-import TaskManager from '../TaskManager';
-import taskReducer from '../../../store/taskSlice';
-
-const createMockStore = (initialState = {}) => {
-  return configureStore({
-    reducer: {
-      tasks: taskReducer,
-    },
-    preloadedState: {
-      tasks: {
-        tasks: [],
-        loading: false,
-        error: null,
-        filter: {
-          status: 'all',
-          priority: 'all',
-          category: 'all',
-          searchTerm: '',
-        },
-        ...initialState,
-      },
-    },
-  });
-};
-
-const renderWithProviders = (component: React.ReactElement, store = createMockStore()) => {
-  return render(
-    <Provider store={store}>
-      <BrowserRouter>
-        {component}
-      </BrowserRouter>
-    </Provider>
-  );
-};
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { render } from '../../../tests/utils/test-utils'
+import TaskManager from '../TaskManager'
+import { createMockTask } from '../../../tests/utils/test-utils'
 
 describe('TaskManager', () => {
-  it('renders task manager header', () => {
-    renderWithProviders(<TaskManager />);
-    expect(screen.getByText('작업 관리')).toBeInTheDocument();
-    expect(screen.getByText('새 작업')).toBeInTheDocument();
-  });
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
 
-  it('shows empty state when no tasks', () => {
-    renderWithProviders(<TaskManager />);
-    expect(screen.getByText('아직 작업이 없습니다')).toBeInTheDocument();
-    expect(screen.getByText('첫 작업 만들기')).toBeInTheDocument();
-  });
-
-  it('opens task form when clicking new task button', () => {
-    renderWithProviders(<TaskManager />);
-    const newTaskButton = screen.getByText('새 작업');
-    fireEvent.click(newTaskButton);
-    // Form should be opened (modal will be rendered)
-  });
-
-  it('renders task list when tasks exist', () => {
-    const mockTasks = [
-      {
-        id: '1',
-        title: 'Test Task 1',
-        description: 'Description 1',
-        category: 'work',
-        priority: 'high',
-        status: 'pending',
-        estimatedDuration: 30,
-        isFlexible: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-      {
-        id: '2',
-        title: 'Test Task 2',
-        description: 'Description 2',
-        category: 'personal',
-        priority: 'medium',
-        status: 'in-progress',
-        estimatedDuration: 45,
-        isFlexible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-    ];
-
-    const store = createMockStore({ tasks: { tasks: mockTasks } });
-    renderWithProviders(<TaskManager />, store);
+  it('should render task manager with tabs', () => {
+    render(<TaskManager />)
     
-    expect(screen.getByText('Test Task 1')).toBeInTheDocument();
-    expect(screen.getByText('Test Task 2')).toBeInTheDocument();
-  });
+    expect(screen.getByText('오늘 할 일')).toBeInTheDocument()
+    expect(screen.getByText('모든 작업')).toBeInTheDocument()
+    expect(screen.getByText('완료된 작업')).toBeInTheDocument()
+  })
 
-  it('filters tasks based on search term', async () => {
-    const mockTasks = [
-      {
-        id: '1',
-        title: 'React Component',
-        description: 'Build React component',
-        category: 'development',
-        priority: 'high',
-        status: 'pending',
-        estimatedDuration: 60,
-        isFlexible: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-      {
-        id: '2',
-        title: 'Write Documentation',
-        description: 'Document the API',
-        category: 'documentation',
-        priority: 'medium',
-        status: 'pending',
-        estimatedDuration: 30,
-        isFlexible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-    ];
-
-    const store = createMockStore({ tasks: { tasks: mockTasks } });
-    renderWithProviders(<TaskManager />, store);
+  it('should display empty state when no tasks', () => {
+    render(<TaskManager />)
     
-    const searchInput = screen.getByPlaceholderText(/검색/i);
-    fireEvent.change(searchInput, { target: { value: 'React' } });
+    expect(screen.getByText(/작업이 없습니다/i)).toBeInTheDocument()
+  })
+
+  it('should show add task button', () => {
+    render(<TaskManager />)
+    
+    const addButton = screen.getByRole('button', { name: /새 작업/i })
+    expect(addButton).toBeInTheDocument()
+  })
+
+  it('should switch between tabs', async () => {
+    const user = userEvent.setup()
+    render(<TaskManager />)
+    
+    const allTasksTab = screen.getByText('모든 작업')
+    await user.click(allTasksTab)
+    
+    expect(allTasksTab).toHaveClass('text-primary-600')
+  })
+
+  it('should render tasks when provided', () => {
+    const mockTask = createMockTask({ title: 'Test Task' })
+    
+    render(<TaskManager />, {
+      initialState: {
+        tasks: {
+          items: [mockTask],
+          filter: { status: null, category: null, priority: null },
+          searchQuery: '',
+          selectedTasks: [],
+          loading: false,
+          error: null
+        }
+      }
+    })
+    
+    expect(screen.getByText('Test Task')).toBeInTheDocument()
+  })
+
+  it('should filter tasks by status', async () => {
+    const user = userEvent.setup()
+    const pendingTask = createMockTask({ title: 'Pending Task', status: 'pending' })
+    const completedTask = createMockTask({ title: 'Completed Task', status: 'completed' })
+    
+    render(<TaskManager />, {
+      initialState: {
+        tasks: {
+          items: [pendingTask, completedTask],
+          filter: { status: null, category: null, priority: null },
+          searchQuery: '',
+          selectedTasks: [],
+          loading: false,
+          error: null
+        }
+      }
+    })
+    
+    // Click on completed tasks tab
+    const completedTab = screen.getByText('완료된 작업')
+    await user.click(completedTab)
+    
+    // Should only show completed task
+    expect(screen.queryByText('Pending Task')).not.toBeInTheDocument()
+    expect(screen.getByText('Completed Task')).toBeInTheDocument()
+  })
+
+  it('should handle task search', async () => {
+    const user = userEvent.setup()
+    const task1 = createMockTask({ title: 'Important Task' })
+    const task2 = createMockTask({ title: 'Regular Task' })
+    
+    render(<TaskManager />, {
+      initialState: {
+        tasks: {
+          items: [task1, task2],
+          filter: { status: null, category: null, priority: null },
+          searchQuery: '',
+          selectedTasks: [],
+          loading: false,
+          error: null
+        }
+      }
+    })
+    
+    const searchInput = screen.getByPlaceholderText(/검색/i)
+    await user.type(searchInput, 'Important')
     
     await waitFor(() => {
-      expect(screen.getByText('React Component')).toBeInTheDocument();
-      expect(screen.queryByText('Write Documentation')).not.toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('Important Task')).toBeInTheDocument()
+      expect(screen.queryByText('Regular Task')).not.toBeInTheDocument()
+    })
+  })
 
-  it('handles task selection for bulk operations', () => {
-    const mockTasks = [
-      {
-        id: '1',
-        title: 'Task 1',
-        description: 'Description 1',
-        category: 'work',
-        priority: 'high',
-        status: 'pending',
-        estimatedDuration: 30,
-        isFlexible: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-      {
-        id: '2',
-        title: 'Task 2',
-        description: 'Description 2',
-        category: 'personal',
-        priority: 'medium',
-        status: 'pending',
-        estimatedDuration: 45,
-        isFlexible: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        completedAt: null,
-        subtasks: [],
-      },
-    ];
+  it('should display loading state', () => {
+    render(<TaskManager />, {
+      initialState: {
+        tasks: {
+          items: [],
+          filter: { status: null, category: null, priority: null },
+          searchQuery: '',
+          selectedTasks: [],
+          loading: true,
+          error: null
+        }
+      }
+    })
+    
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument()
+  })
 
-    const store = createMockStore({ tasks: { tasks: mockTasks } });
-    renderWithProviders(<TaskManager />, store);
+  it('should display error state', () => {
+    const errorMessage = 'Failed to load tasks'
     
-    // Select first task
-    const checkboxes = screen.getAllByRole('checkbox');
-    fireEvent.click(checkboxes[0]);
+    render(<TaskManager />, {
+      initialState: {
+        tasks: {
+          items: [],
+          filter: { status: null, category: null, priority: null },
+          searchQuery: '',
+          selectedTasks: [],
+          loading: false,
+          error: errorMessage
+        }
+      }
+    })
     
-    // Bulk operations bar should appear
-    expect(screen.getByText(/1개 선택됨/)).toBeInTheDocument();
-  });
-});
+    expect(screen.getByText(errorMessage)).toBeInTheDocument()
+  })
+})

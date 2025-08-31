@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { OnboardingFlow } from '../onboarding/OnboardingFlow'
 
 const Layout: React.FC = () => {
   const location = useLocation()
@@ -14,9 +15,13 @@ const Layout: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* 사이드바 */}
-      <nav className="w-64 bg-white shadow-lg border-r border-gray-200">
+    <>
+      {/* Onboarding Flow */}
+      <OnboardingFlow />
+      
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* 사이드바 */}
+        <nav className="w-64 bg-white shadow-lg border-r border-gray-200">
         <div className="p-6">
           <h1 className="text-xl font-bold text-gray-900 mb-8">
             ADHD Time Manager
@@ -58,6 +63,7 @@ const Layout: React.FC = () => {
         </motion.div>
       </main>
     </div>
+    </>
   )
 }
 

@@ -8,3 +8,10 @@ export { default as Badge } from './Badge'
 export { default as Toast, ToastContainer } from './Toast'
 export { default as Tooltip, HelpTooltip } from './Tooltip'
 export { default as Loading } from './Loading'
+
+// Micro-interaction Components
+export { default as FloatingActionButton } from './FloatingActionButton'
+export { default as AnimatedCheckbox } from './AnimatedCheckbox'
+export { default as RippleButton } from './RippleButton'
+export { default as AnimatedCounter } from './AnimatedCounter'
+export { default as SwipeableCard } from './SwipeableCard'

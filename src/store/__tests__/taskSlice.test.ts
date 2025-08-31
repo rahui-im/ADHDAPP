@@ -1,44 +1,22 @@
+import { describe, it, expect, beforeEach } from 'vitest'
 import { configureStore } from '@reduxjs/toolkit'
 import taskReducer, {
-  toggleSubtask,
-  setCurrentTask,
-  updateTaskStatus,
+  addTask,
+  updateTask,
+  deleteTask,
+  toggleTaskComplete,
   reorderTasks,
-  postponeTask,
-  applyScheduleAdjustments,
-  reorderTasksByEnergy,
-  acceptGoalAdjustment,
-  declineGoalAdjustment,
-  suggestRealisticGoals,
-  setLoading,
-  setError,
-  clearCompletedTasks,
-  createTaskAsync,
-  updateTaskAsync,
-  deleteTaskAsync,
+  setFilter,
+  setSearchQuery,
+  bulkUpdateTasks,
+  bulkDeleteTasks,
+  splitTask,
+  setSelectedTasks,
+  clearSelectedTasks,
+  selectAllTasks,
+  selectTask
 } from '../taskSlice'
-import { Task, CreateTaskRequest, Subtask, ScheduleAdjustment } from '../../types'
-
-// Mock services
-jest.mock('../../services/schedulingService', () => ({
-  schedulingService: {
-    adjustPriorityOnPostpone: jest.fn(() => []),
-    scheduleTasksByType: jest.fn((tasks) => tasks),
-    recommendTasksByEnergy: jest.fn((tasks) => tasks),
-  },
-}))
-
-jest.mock('../../services/goalAdjustmentService', () => ({
-  goalAdjustmentService: {
-    adjustGoalsForLowCompletion: jest.fn(() => ({
-      type: 'reduce_tasks',
-      suggestedTasks: [],
-      message: 'Test adjustment',
-      confidence: 0.8,
-    })),
-    suggestRealisticGoals: jest.fn((tasks) => tasks.slice(0, 3)),
-  },
-}))
+import { createMockTask } from '../../tests/utils/test-utils'
 
 describe('taskSlice', () => {
   let store: ReturnType<typeof configureStore>
@@ -46,302 +24,190 @@ describe('taskSlice', () => {
   beforeEach(() => {
     store = configureStore({
       reducer: {
-        tasks: taskReducer,
-      },
+        tasks: taskReducer
+      }
     })
   })
 
-  const mockTask: Task = {
-    id: 'task-1',
-    title: 'Test Task',
-    description: 'Test Description',
-    estimatedDuration: 30,
-    subtasks: [
-      {
-        id: 'subtask-1',
-        title: 'Subtask 1',
-        duration: 15,
-        isCompleted: false,
-      },
-      {
-        id: 'subtask-2',
-        title: 'Subtask 2',
-        duration: 15,
-        isCompleted: false,
-      },
-    ],
-    priority: 'medium',
-    category: '업무',
-    isFlexible: true,
-    status: 'pending',
-    createdAt: new Date('2024-01-01'),
-  }
-
-  describe('initial state', () => {
-    it('should have correct initial state', () => {
-      const state = store.getState().tasks
-      expect(state.tasks).toEqual([])
-      expect(state.currentTask).toBeNull()
-      expect(state.dailySchedule).toBeNull()
-      expect(state.goalAdjustment).toBeNull()
-      expect(state.loading).toBe(false)
-      expect(state.error).toBeNull()
-    })
-  })
-
-  describe('synchronous actions', () => {
-    beforeEach(() => {
-      // Add mock task to state
-      store.dispatch({ type: 'tasks/addMockTask', payload: mockTask })
-    })
-
-    it('should toggle subtask completion', () => {
-      store.dispatch(toggleSubtask({ taskId: 'task-1', subtaskId: 'subtask-1' }))
+  describe('Task CRUD Operations', () => {
+    it('should add a new task', () => {
+      const newTask = createMockTask({ title: 'New Task' })
+      store.dispatch(addTask(newTask))
       
       const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      const subtask = task?.subtasks.find(st => st.id === 'subtask-1')
-      
-      expect(subtask?.isCompleted).toBe(true)
-      expect(subtask?.completedAt).toBeInstanceOf(Date)
+      expect(state.items).toHaveLength(1)
+      expect(state.items[0].title).toBe('New Task')
     })
 
-    it('should complete task when all subtasks are completed', () => {
-      store.dispatch(toggleSubtask({ taskId: 'task-1', subtaskId: 'subtask-1' }))
-      store.dispatch(toggleSubtask({ taskId: 'task-1', subtaskId: 'subtask-2' }))
+    it('should update an existing task', () => {
+      const task = createMockTask()
+      store.dispatch(addTask(task))
       
-      const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      
-      expect(task?.status).toBe('completed')
-      expect(task?.completedAt).toBeInstanceOf(Date)
-    })
-
-    it('should set current task', () => {
-      store.dispatch(setCurrentTask(mockTask))
-      
-      const state = store.getState().tasks
-      expect(state.currentTask).toEqual(mockTask)
-    })
-
-    it('should update task status', () => {
-      store.dispatch(updateTaskStatus({ id: 'task-1', status: 'in-progress' }))
-      
-      const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      
-      expect(task?.status).toBe('in-progress')
-    })
-
-    it('should complete task and all subtasks when status is completed', () => {
-      store.dispatch(updateTaskStatus({ id: 'task-1', status: 'completed' }))
-      
-      const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      
-      expect(task?.status).toBe('completed')
-      expect(task?.completedAt).toBeInstanceOf(Date)
-      expect(task?.subtasks.every(st => st.isCompleted)).toBe(true)
-    })
-
-    it('should reorder tasks', () => {
-      const task2: Task = { ...mockTask, id: 'task-2', title: 'Task 2' }
-      store.dispatch({ type: 'tasks/addMockTask', payload: task2 })
-      
-      store.dispatch(reorderTasks({ taskId: 'task-1', newIndex: 1 }))
-      
-      const state = store.getState().tasks
-      expect(state.tasks[1].id).toBe('task-1')
-    })
-
-    it('should postpone task and increase priority', () => {
-      store.dispatch(postponeTask('task-1'))
-      
-      const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      
-      expect(task?.status).toBe('postponed')
-      expect(task?.postponedCount).toBe(1)
-      expect(task?.priority).toBe('high')
-    })
-
-    it('should apply schedule adjustments', () => {
-      const adjustments: ScheduleAdjustment[] = [
-        {
-          taskId: 'task-1',
-          newPriority: 'high',
-          newPosition: 0,
-          reason: 'postponed',
-        },
-      ]
-      
-      store.dispatch(applyScheduleAdjustments(adjustments))
-      
-      const state = store.getState().tasks
-      const task = state.tasks.find(t => t.id === 'task-1')
-      
-      expect(task?.priority).toBe('high')
-    })
-
-    it('should clear completed tasks', () => {
-      store.dispatch(updateTaskStatus({ id: 'task-1', status: 'completed' }))
-      store.dispatch(clearCompletedTasks())
-      
-      const state = store.getState().tasks
-      expect(state.tasks.length).toBe(0)
-    })
-
-    it('should set loading state', () => {
-      store.dispatch(setLoading(true))
-      
-      const state = store.getState().tasks
-      expect(state.loading).toBe(true)
-    })
-
-    it('should set error state', () => {
-      const errorMessage = 'Test error'
-      store.dispatch(setError(errorMessage))
-      
-      const state = store.getState().tasks
-      expect(state.error).toBe(errorMessage)
-    })
-  })
-
-  describe('async actions', () => {
-    it('should create task with auto-splitting', async () => {
-      const taskRequest: CreateTaskRequest = {
-        title: 'Long Task',
-        description: 'A task that should be split',
-        estimatedDuration: 60,
-        priority: 'medium',
-        category: '업무',
-        isFlexible: true,
-      }
-
-      await store.dispatch(createTaskAsync(taskRequest))
-      
-      const state = store.getState().tasks
-      expect(state.tasks.length).toBe(1)
-      expect(state.tasks[0].subtasks.length).toBeGreaterThan(0)
-      expect(state.loading).toBe(false)
-    })
-
-    it('should update task', async () => {
-      // First create a task
-      const taskRequest: CreateTaskRequest = {
-        title: 'Original Task',
-        estimatedDuration: 30,
-        priority: 'medium',
-        category: '업무',
-        isFlexible: true,
-      }
-
-      await store.dispatch(createTaskAsync(taskRequest))
-      const createdTask = store.getState().tasks.tasks[0]
-
-      // Then update it
-      const updates = { title: 'Updated Task', priority: 'high' as const }
-      await store.dispatch(updateTaskAsync({ id: createdTask.id, updates }))
-      
-      const state = store.getState().tasks
-      const updatedTask = state.tasks.find(t => t.id === createdTask.id)
-      
-      expect(updatedTask?.title).toBe('Updated Task')
-      expect(updatedTask?.priority).toBe('high')
-    })
-
-    it('should delete task', async () => {
-      // First create a task
-      const taskRequest: CreateTaskRequest = {
-        title: 'Task to Delete',
-        estimatedDuration: 30,
-        priority: 'medium',
-        category: '업무',
-        isFlexible: true,
-      }
-
-      await store.dispatch(createTaskAsync(taskRequest))
-      const createdTask = store.getState().tasks.tasks[0]
-
-      // Then delete it
-      await store.dispatch(deleteTaskAsync(createdTask.id))
-      
-      const state = store.getState().tasks
-      expect(state.tasks.length).toBe(0)
-    })
-
-    it('should handle async action errors', async () => {
-      // Mock crypto.randomUUID to throw error
-      const originalRandomUUID = global.crypto.randomUUID
-      global.crypto.randomUUID = jest.fn(() => {
-        throw new Error('UUID generation failed')
-      })
-
-      const taskRequest: CreateTaskRequest = {
-        title: 'Failing Task',
-        estimatedDuration: 30,
-        priority: 'medium',
-        category: '업무',
-        isFlexible: true,
-      }
-
-      await store.dispatch(createTaskAsync(taskRequest))
-      
-      const state = store.getState().tasks
-      expect(state.error).toBeTruthy()
-      expect(state.loading).toBe(false)
-
-      // Restore original function
-      global.crypto.randomUUID = originalRandomUUID
-    })
-  })
-
-  describe('goal adjustment', () => {
-    beforeEach(() => {
-      store.dispatch({ type: 'tasks/addMockTask', payload: mockTask })
-    })
-
-    it('should accept goal adjustment', () => {
-      const suggestedTasks = [mockTask]
-      store.dispatch(acceptGoalAdjustment(suggestedTasks))
-      
-      const state = store.getState().tasks
-      expect(state.goalAdjustment).toBeNull()
-    })
-
-    it('should decline goal adjustment', () => {
-      store.dispatch(declineGoalAdjustment())
-      
-      const state = store.getState().tasks
-      expect(state.goalAdjustment).toBeNull()
-    })
-
-    it('should suggest realistic goals', () => {
-      store.dispatch(suggestRealisticGoals({
-        energyLevel: 'low',
-        recentCompletionRate: 0.3,
+      store.dispatch(updateTask({
+        id: task.id,
+        updates: { title: 'Updated Task' }
       }))
       
-      // Should not throw error and complete successfully
       const state = store.getState().tasks
-      expect(state.error).toBeNull()
+      expect(state.items[0].title).toBe('Updated Task')
+    })
+
+    it('should delete a task', () => {
+      const task = createMockTask()
+      store.dispatch(addTask(task))
+      
+      store.dispatch(deleteTask(task.id))
+      
+      const state = store.getState().tasks
+      expect(state.items).toHaveLength(0)
+    })
+
+    it('should toggle task completion', () => {
+      const task = createMockTask({ status: 'pending' })
+      store.dispatch(addTask(task))
+      
+      store.dispatch(toggleTaskComplete(task.id))
+      
+      const state = store.getState().tasks
+      expect(state.items[0].status).toBe('completed')
+      expect(state.items[0].completedAt).toBeTruthy()
+    })
+  })
+
+  describe('Task Reordering', () => {
+    it('should reorder tasks', () => {
+      const task1 = createMockTask({ id: '1', title: 'Task 1' })
+      const task2 = createMockTask({ id: '2', title: 'Task 2' })
+      const task3 = createMockTask({ id: '3', title: 'Task 3' })
+      
+      store.dispatch(addTask(task1))
+      store.dispatch(addTask(task2))
+      store.dispatch(addTask(task3))
+      
+      store.dispatch(reorderTasks({ sourceIndex: 0, destinationIndex: 2 }))
+      
+      const state = store.getState().tasks
+      expect(state.items[0].title).toBe('Task 2')
+      expect(state.items[1].title).toBe('Task 3')
+      expect(state.items[2].title).toBe('Task 1')
+    })
+  })
+
+  describe('Filtering and Search', () => {
+    beforeEach(() => {
+      const task1 = createMockTask({ status: 'pending', title: 'Pending Task' })
+      const task2 = createMockTask({ status: 'completed', title: 'Completed Task' })
+      const task3 = createMockTask({ status: 'in-progress', title: 'In Progress' })
+      
+      store.dispatch(addTask(task1))
+      store.dispatch(addTask(task2))
+      store.dispatch(addTask(task3))
+    })
+
+    it('should filter tasks by status', () => {
+      store.dispatch(setFilter({ status: 'completed' }))
+      
+      const state = store.getState().tasks
+      expect(state.filter.status).toBe('completed')
+    })
+
+    it('should set search query', () => {
+      store.dispatch(setSearchQuery('Task'))
+      
+      const state = store.getState().tasks
+      expect(state.searchQuery).toBe('Task')
+    })
+  })
+
+  describe('Bulk Operations', () => {
+    beforeEach(() => {
+      const task1 = createMockTask({ id: '1' })
+      const task2 = createMockTask({ id: '2' })
+      const task3 = createMockTask({ id: '3' })
+      
+      store.dispatch(addTask(task1))
+      store.dispatch(addTask(task2))
+      store.dispatch(addTask(task3))
+    })
+
+    it('should bulk update tasks', () => {
+      store.dispatch(bulkUpdateTasks({
+        taskIds: ['1', '2'],
+        updates: { priority: 'high' }
+      }))
+      
+      const state = store.getState().tasks
+      expect(state.items[0].priority).toBe('high')
+      expect(state.items[1].priority).toBe('high')
+      expect(state.items[2].priority).toBe('medium')
+    })
+
+    it('should bulk delete tasks', () => {
+      store.dispatch(bulkDeleteTasks(['1', '3']))
+      
+      const state = store.getState().tasks
+      expect(state.items).toHaveLength(1)
+      expect(state.items[0].id).toBe('2')
+    })
+  })
+
+  describe('Task Splitting', () => {
+    it('should split a task into subtasks', () => {
+      const parentTask = createMockTask({ id: 'parent', title: 'Parent Task' })
+      store.dispatch(addTask(parentTask))
+      
+      const subtasks = [
+        { title: 'Subtask 1', estimatedDuration: 10 },
+        { title: 'Subtask 2', estimatedDuration: 15 }
+      ]
+      
+      store.dispatch(splitTask({ parentTaskId: 'parent', subtasks }))
+      
+      const state = store.getState().tasks
+      expect(state.items).toHaveLength(3)
+      expect(state.items[1].title).toBe('Subtask 1')
+      expect(state.items[2].title).toBe('Subtask 2')
+    })
+  })
+
+  describe('Task Selection', () => {
+    beforeEach(() => {
+      const task1 = createMockTask({ id: '1' })
+      const task2 = createMockTask({ id: '2' })
+      const task3 = createMockTask({ id: '3' })
+      
+      store.dispatch(addTask(task1))
+      store.dispatch(addTask(task2))
+      store.dispatch(addTask(task3))
+    })
+
+    it('should select a task', () => {
+      store.dispatch(selectTask('1'))
+      
+      const state = store.getState().tasks
+      expect(state.selectedTasks).toContain('1')
+    })
+
+    it('should select all tasks', () => {
+      store.dispatch(selectAllTasks())
+      
+      const state = store.getState().tasks
+      expect(state.selectedTasks).toHaveLength(3)
+    })
+
+    it('should clear selected tasks', () => {
+      store.dispatch(selectAllTasks())
+      store.dispatch(clearSelectedTasks())
+      
+      const state = store.getState().tasks
+      expect(state.selectedTasks).toHaveLength(0)
+    })
+
+    it('should set selected tasks', () => {
+      store.dispatch(setSelectedTasks(['1', '3']))
+      
+      const state = store.getState().tasks
+      expect(state.selectedTasks).toEqual(['1', '3'])
     })
   })
 })
-
-// Add custom reducer for testing
-const taskSliceWithMockActions = {
-  ...taskReducer,
-  extraReducers: (builder: any) => {
-    // Call original extraReducers
-    const originalExtraReducers = (taskReducer as any).extraReducers
-    if (originalExtraReducers) {
-      originalExtraReducers(builder)
-    }
-    
-    // Add mock action for testing
-    builder.addCase('tasks/addMockTask', (state: any, action: any) => {
-      state.tasks.push(action.payload)
-    })
-  },
-}

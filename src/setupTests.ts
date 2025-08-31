@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Mock crypto.randomUUID for tests
 Object.defineProperty(global, 'crypto', {
@@ -13,7 +14,7 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-}
+} as any
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -21,55 +22,55 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-}
+} as any
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 })
 
 // Mock localStorage
 const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
-global.localStorage = localStorageMock
+global.localStorage = localStorageMock as any
 
 // Mock sessionStorage
 const sessionStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
 }
-global.sessionStorage = sessionStorageMock
+global.sessionStorage = sessionStorageMock as any
 
 // Mock Notification API
 global.Notification = {
-  requestPermission: jest.fn(() => Promise.resolve('granted')),
+  requestPermission: vi.fn(() => Promise.resolve('granted')),
   permission: 'granted',
 } as any
 
 // Mock window.alert, confirm, prompt
-global.alert = jest.fn()
-global.confirm = jest.fn(() => true)
-global.prompt = jest.fn(() => 'test')
+global.alert = vi.fn()
+global.confirm = vi.fn(() => true)
+global.prompt = vi.fn(() => 'test')
 
 // Mock requestAnimationFrame
 global.requestAnimationFrame = (callback: FrameRequestCallback) => {
-  return setTimeout(callback, 0)
+  return setTimeout(callback, 0) as any
 }
 
 global.cancelAnimationFrame = (id: number) => {
@@ -77,7 +78,7 @@ global.cancelAnimationFrame = (id: number) => {
 }
 
 // Mock performance.now
-global.performance.now = jest.fn(() => Date.now())
+global.performance.now = vi.fn(() => Date.now())
 
 // Suppress console errors in tests unless explicitly needed
 const originalError = console.error
@@ -99,7 +100,7 @@ afterAll(() => {
 
 // Clean up after each test
 afterEach(() => {
-  jest.clearAllMocks()
+  vi.clearAllMocks()
   localStorageMock.getItem.mockClear()
   localStorageMock.setItem.mockClear()
   localStorageMock.removeItem.mockClear()

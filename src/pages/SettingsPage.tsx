@@ -5,6 +5,7 @@ import { PWAStatus } from '../components/pwa/PWAStatus'
 import { useAppSelector, useAppDispatch } from '../store/store'
 import { selectCurrentUser } from '../store/selectors'
 import { updateUserPreferences } from '../store/userSlice'
+import { resetOnboarding, startOnboarding } from '../store/onboardingSlice'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import { 
@@ -40,6 +41,7 @@ const SettingsPage: React.FC = () => {
     { id: 'backup', name: '백업', icon: CloudArrowUpIcon },
     { id: 'pwa', name: '앱 설정', icon: DevicePhoneMobileIcon },
     { id: 'appearance', name: '테마', icon: PaintBrushIcon },
+    { id: 'onboarding', name: '온보딩', icon: UserIcon },
   ]
 
   return (
@@ -199,6 +201,53 @@ const SettingsPage: React.FC = () => {
                   <p className="text-sm text-blue-800">
                     💡 <strong>팁:</strong> ADHD 친화적인 디자인을 위해 높은 대비와 명확한 색상을 사용합니다.
                   </p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {activeTab === 'onboarding' && (
+            <Card className="p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">온보딩 설정</h2>
+              
+              <div className="space-y-6">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-gray-900 mb-2">온보딩 투어</h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    처음 사용자를 위한 기능 안내 투어를 다시 시작할 수 있습니다.
+                  </p>
+                  <div className="flex space-x-3">
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        dispatch(resetOnboarding())
+                        dispatch(startOnboarding())
+                      }}
+                    >
+                      온보딩 다시 보기
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        dispatch(resetOnboarding())
+                        alert('온보딩이 초기화되었습니다. 페이지를 새로고침하면 온보딩이 다시 시작됩니다.')
+                      }}
+                    >
+                      온보딩 초기화
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>온보딩 기능:</strong>
+                  </p>
+                  <ul className="mt-2 text-sm text-blue-700 space-y-1">
+                    <li>• 주요 기능 소개 및 투어</li>
+                    <li>• 키보드 단축키 안내</li>
+                    <li>• 단계별 진행 상황 추적</li>
+                    <li>• 완료 시 축하 애니메이션</li>
+                  </ul>
                 </div>
               </div>
             </Card>

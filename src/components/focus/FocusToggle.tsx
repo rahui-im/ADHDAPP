@@ -48,7 +48,7 @@ const FocusToggle: React.FC<FocusToggleProps> = ({
   }
 
   return (
-    <div className={`focus-toggle ${className}`}>
+    <div className={`focus-mode-toggle ${className}`}>
       <Tooltip content={getTooltipText()} disabled={!showTooltip}>
         <div
           onMouseEnter={() => setShowTooltip(true)}

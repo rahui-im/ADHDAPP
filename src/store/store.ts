@@ -15,13 +15,14 @@ import taskReducer from './taskSlice'
 import timerReducer from './timerSlice'
 import userReducer from './userSlice'
 import analyticsReducer from './analyticsSlice'
+import onboardingReducer from './onboardingSlice'
 
 // Persist configuration
 const persistConfig = {
   key: 'adhd-time-manager',
   version: 1,
   storage,
-  whitelist: ['tasks', 'user', 'analytics'], // timer state는 제외 (세션 기반)
+  whitelist: ['tasks', 'user', 'analytics', 'onboarding'], // timer state는 제외 (세션 기반)
   blacklist: ['timer'] // timer는 세션 중에만 유지
 }
 
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   timer: timerReducer,
   user: userReducer,
   analytics: analyticsReducer,
+  onboarding: onboardingReducer,
 })
 
 // Persisted reducer

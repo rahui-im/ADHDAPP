@@ -131,7 +131,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
   const completionData = getCompletionMessage()
 
   return (
-    <div className={className}>
+    <div className={`pomodoro-timer ${className}`}>
       <Card className={`p-6 ${focusMode ? 'shadow-2xl border-2' : 'shadow-lg'}`}>
         <div className="space-y-6">
           {/* 헤더 */}

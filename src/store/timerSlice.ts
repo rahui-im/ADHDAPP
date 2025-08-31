@@ -1,10 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { TimerState, TimerSettings } from '../types'
+import { TimerState, TimerSettings, TimerTemplate, TimerHistory, SoundSettings } from '../types'
 
 export interface TimerSliceState extends TimerState {
   settings: TimerSettings
   isInitialized: boolean
   lastStartTime?: number
+  templates: TimerTemplate[]
+  currentTemplateId?: string
+  history: TimerHistory[]
+  soundSettings: SoundSettings
+  customDuration?: number // Custom duration in minutes
 }
 
 const initialState: TimerSliceState = {
@@ -23,6 +28,17 @@ const initialState: TimerSliceState = {
     cyclesBeforeLongBreak: 3,
   },
   isInitialized: false,
+  templates: [],
+  history: [],
+  soundSettings: {
+    enabled: false,
+    volume: 50,
+    selectedSoundId: undefined,
+    mixSounds: false,
+    activeSounds: [],
+    fadeInDuration: 2,
+    fadeOutDuration: 2,
+  },
 }
 
 const timerSlice = createSlice({
@@ -201,6 +217,108 @@ const timerSlice = createSlice({
     setInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload
     },
+
+    // 타이머 템플릿 관련 액션
+    addTemplate: (state, action: PayloadAction<TimerTemplate>) => {
+      state.templates.push(action.payload)
+    },
+
+    updateTemplate: (state, action: PayloadAction<{ id: string; updates: Partial<TimerTemplate> }>) => {
+      const { id, updates } = action.payload
+      const index = state.templates.findIndex(t => t.id === id)
+      if (index !== -1) {
+        state.templates[index] = { ...state.templates[index], ...updates }
+      }
+    },
+
+    deleteTemplate: (state, action: PayloadAction<string>) => {
+      state.templates = state.templates.filter(t => t.id !== action.payload)
+    },
+
+    applyTemplate: (state, action: PayloadAction<string>) => {
+      const template = state.templates.find(t => t.id === action.payload)
+      if (template) {
+        state.currentTemplateId = template.id
+        state.settings.focusDurations = [template.focusDuration, template.focusDuration, template.focusDuration]
+        state.settings.shortBreakDurations = [template.shortBreakDuration, template.shortBreakDuration, template.shortBreakDuration]
+        state.settings.longBreakDuration = template.longBreakDuration
+        state.settings.cyclesBeforeLongBreak = template.cyclesBeforeLongBreak
+        
+        // Update current duration based on mode
+        if (state.mode === 'focus') {
+          state.duration = template.focusDuration * 60
+        } else if (state.mode === 'short-break') {
+          state.duration = template.shortBreakDuration * 60
+        } else {
+          state.duration = template.longBreakDuration * 60
+        }
+        
+        if (!state.isRunning) {
+          state.remaining = state.duration
+        }
+        
+        // Update template usage stats
+        template.lastUsedAt = new Date()
+        template.usageCount++
+      }
+    },
+
+    // 커스텀 시간 설정
+    setCustomDuration: (state, action: PayloadAction<number>) => {
+      const minutes = action.payload
+      state.customDuration = minutes
+      state.duration = minutes * 60
+      if (!state.isRunning) {
+        state.remaining = minutes * 60
+      }
+    },
+
+    // 타이머 히스토리 관련 액션
+    addHistory: (state, action: PayloadAction<TimerHistory>) => {
+      state.history.unshift(action.payload) // Add to beginning
+      // Keep only last 100 entries
+      if (state.history.length > 100) {
+        state.history = state.history.slice(0, 100)
+      }
+    },
+
+    clearHistory: (state) => {
+      state.history = []
+    },
+
+    // 사운드 설정 관련 액션
+    updateSoundSettings: (state, action: PayloadAction<Partial<SoundSettings>>) => {
+      state.soundSettings = { ...state.soundSettings, ...action.payload }
+    },
+
+    toggleSound: (state) => {
+      state.soundSettings.enabled = !state.soundSettings.enabled
+    },
+
+    setVolume: (state, action: PayloadAction<number>) => {
+      state.soundSettings.volume = Math.max(0, Math.min(100, action.payload))
+    },
+
+    selectSound: (state, action: PayloadAction<string | undefined>) => {
+      state.soundSettings.selectedSoundId = action.payload
+      if (action.payload && !state.soundSettings.activeSounds.includes(action.payload)) {
+        if (state.soundSettings.mixSounds) {
+          state.soundSettings.activeSounds.push(action.payload)
+        } else {
+          state.soundSettings.activeSounds = [action.payload]
+        }
+      }
+    },
+
+    toggleMixSounds: (state) => {
+      state.soundSettings.mixSounds = !state.soundSettings.mixSounds
+      if (!state.soundSettings.mixSounds && state.soundSettings.activeSounds.length > 1) {
+        // Keep only the selected sound when disabling mix
+        state.soundSettings.activeSounds = state.soundSettings.selectedSoundId 
+          ? [state.soundSettings.selectedSoundId] 
+          : []
+      }
+    },
   },
 })
 
@@ -219,6 +337,18 @@ export const {
   setCurrentTaskId,
   restoreTimerState,
   setInitialized,
+  addTemplate,
+  updateTemplate,
+  deleteTemplate,
+  applyTemplate,
+  setCustomDuration,
+  addHistory,
+  clearHistory,
+  updateSoundSettings,
+  toggleSound,
+  setVolume,
+  selectSound,
+  toggleMixSounds,
 } = timerSlice.actions
 
 export default timerSlice.reducer

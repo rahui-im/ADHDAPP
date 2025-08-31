@@ -224,6 +224,85 @@ export interface GoalAdjustmentOptions {
   encouragingMessages: boolean // 격려 메시지 포함 여부
 }
 
+// 타이머 템플릿 관련 타입
+export interface TimerTemplate {
+  id: string
+  name: string
+  description?: string
+  focusDuration: number // minutes
+  shortBreakDuration: number // minutes
+  longBreakDuration: number // minutes
+  cyclesBeforeLongBreak: number
+  isCustom: boolean
+  createdAt: Date
+  lastUsedAt?: Date
+  usageCount: number
+}
+
+export interface TimerPreset {
+  id: string
+  name: string
+  description: string
+  icon?: string
+  template: Partial<TimerTemplate>
+  tags: string[] // ['ADHD-friendly', 'quick-sprint', 'deep-focus']
+  recommended: boolean
+}
+
+// 타이머 히스토리 관련 타입
+export interface TimerHistory {
+  id: string
+  templateId?: string
+  templateName?: string
+  taskId?: string
+  taskTitle?: string
+  mode: 'focus' | 'short-break' | 'long-break'
+  plannedDuration: number // seconds
+  actualDuration: number // seconds
+  completedCycles: number
+  startedAt: Date
+  completedAt?: Date
+  wasInterrupted: boolean
+  interruptionCount: number
+  productivityScore?: number // 1-10 scale
+}
+
+export interface TimerStats {
+  totalFocusTime: number // minutes
+  totalBreakTime: number // minutes
+  totalSessions: number
+  completedSessions: number
+  interruptedSessions: number
+  averageFocusDuration: number
+  averageProductivityScore: number
+  mostUsedTemplate?: string
+  bestTimeOfDay?: string // morning, afternoon, evening, night
+  currentStreak: number
+  longestStreak: number
+}
+
+// 앰비언트 사운드 관련 타입
+export interface AmbientSound {
+  id: string
+  name: string
+  category: 'nature' | 'white-noise' | 'brown-noise' | 'focus' | 'meditation'
+  url: string
+  description?: string
+  icon?: string
+  duration?: number // seconds, undefined for looping sounds
+  isPremium: boolean
+}
+
+export interface SoundSettings {
+  enabled: boolean
+  volume: number // 0-100
+  selectedSoundId?: string
+  mixSounds: boolean // allow multiple sounds
+  activeSounds: string[] // array of sound IDs
+  fadeInDuration: number // seconds
+  fadeOutDuration: number // seconds
+}
+
 // 오류 관련 타입
 export type AppError = 
   | 'TASK_NOT_FOUND'
@@ -232,6 +311,9 @@ export type AppError =
   | 'NOTIFICATION_PERMISSION_DENIED'
   | 'INVALID_TASK_DURATION'
   | 'SUBTASK_CREATION_FAILED'
+  | 'TEMPLATE_NOT_FOUND'
+  | 'SOUND_LOAD_FAILED'
+  | 'AUDIO_PERMISSION_DENIED'
 
 export interface ErrorState {
   type: AppError
