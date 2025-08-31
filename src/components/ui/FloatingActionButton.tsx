@@ -118,7 +118,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
               >
                 {action.label}
               </motion.div>
-            </motion.button>
+            </motion.div>
           )}
         )}
       </AnimatePresence>
