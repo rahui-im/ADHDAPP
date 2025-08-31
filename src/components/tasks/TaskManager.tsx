@@ -1,29 +1,33 @@
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import { 
   createTaskAsync, 
-  updateTaskAsync, 
-  deleteTaskAsync
+  updateTaskAsync
 } from '../../store/taskSlice'
 import { 
-  selectAllTasks, 
+  selectFilteredTasks, 
   selectTasksLoading 
 } from '../../store/selectors'
 import { CreateTaskRequest, Task, Subtask } from '../../types'
 import TaskForm from './TaskForm'
+import DeleteTaskDialog from './DeleteTaskDialog'
+import DraggableTaskList from './DraggableTaskList'
+import TaskFilter from './TaskFilter'
+import BulkOperations from './BulkOperations'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
-import { PlusIcon, PencilIcon, TrashIcon } from '../ui/Icons'
+import { PlusIcon } from '../ui/Icons'
 
 const TaskManager: React.FC = () => {
   const dispatch = useAppDispatch()
-  const tasks = useAppSelector(selectAllTasks)
+  const tasks = useAppSelector(selectFilteredTasks)
   const isLoading = useAppSelector(selectTasksLoading)
   
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
+  const [deletingTask, setDeletingTask] = useState<{ id: string; title: string; hasSubtasks: boolean } | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTasks, setSelectedTasks] = useState<Task[]>([])
 
   const handleCreateTask = async (taskData: CreateTaskRequest, subtasks?: Subtask[]) => {
     console.log('Creating task:', taskData, subtasks)
@@ -51,18 +55,53 @@ const TaskManager: React.FC = () => {
     }
   }
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('이 작업을 삭제하시겠습니까?')) return
-    
-    setDeletingTaskId(taskId)
-    try {
-      await dispatch(deleteTaskAsync(taskId)).unwrap()
-    } catch (error) {
-      console.error('Failed to delete task:', error)
-    } finally {
-      setDeletingTaskId(null)
+  const handleDeleteClick = (task: Task) => {
+    setDeletingTask({
+      id: task.id,
+      title: task.title,
+      hasSubtasks: task.subtasks && task.subtasks.length > 0
+    })
+  }
+
+  const handleDeleteConfirm = () => {
+    setDeletingTask(null)
+  }
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term)
+  }
+  
+  const handleSelectTask = (task: Task) => {
+    const isSelected = selectedTasks.some(t => t.id === task.id)
+    if (isSelected) {
+      setSelectedTasks(selectedTasks.filter(t => t.id !== task.id))
+    } else {
+      setSelectedTasks([...selectedTasks, task])
     }
   }
+  
+  // const handleSelectAll = () => {
+  //   if (selectedTasks.length === filteredTasks.length) {
+  //     setSelectedTasks([])
+  //   } else {
+  //     setSelectedTasks(filteredTasks)
+  //   }
+  // }
+  
+  const handleClearSelection = () => {
+    setSelectedTasks([])
+  }
+
+  // Filter tasks by search term
+  const filteredTasks = tasks.filter(task => {
+    if (!searchTerm) return true
+    const term = searchTerm.toLowerCase()
+    return (
+      task.title.toLowerCase().includes(term) ||
+      (task.description && task.description.toLowerCase().includes(term)) ||
+      task.category.toLowerCase().includes(term)
+    )
+  })
 
   const openEditForm = (task: Task) => {
     setEditingTask(task)
@@ -74,43 +113,6 @@ const TaskManager: React.FC = () => {
     setEditingTask(null)
   }
 
-  const getPriorityColor = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 border-red-200'
-      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200'
-      case 'low': return 'text-gray-600 bg-gray-50 border-gray-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
-    }
-  }
-
-  const getPriorityLabel = (priority: Task['priority']) => {
-    switch (priority) {
-      case 'high': return '높음'
-      case 'medium': return '보통'
-      case 'low': return '낮음'
-      default: return '보통'
-    }
-  }
-
-  const getStatusColor = (status: Task['status']) => {
-    switch (status) {
-      case 'completed': return 'text-green-600 bg-green-50 border-green-200'
-      case 'in-progress': return 'text-blue-600 bg-blue-50 border-blue-200'
-      case 'postponed': return 'text-orange-600 bg-orange-50 border-orange-200'
-      case 'pending': return 'text-gray-600 bg-gray-50 border-gray-200'
-      default: return 'text-gray-600 bg-gray-50 border-gray-200'
-    }
-  }
-
-  const getStatusLabel = (status: Task['status']) => {
-    switch (status) {
-      case 'completed': return '완료'
-      case 'in-progress': return '진행중'
-      case 'postponed': return '연기됨'
-      case 'pending': return '대기중'
-      default: return '대기중'
-    }
-  }
 
   return (
     <div className="space-y-6">
@@ -135,9 +137,12 @@ const TaskManager: React.FC = () => {
         </Button>
       </div>
 
+      {/* 필터 및 검색 */}
+      <TaskFilter onSearch={handleSearch} />
+
       {/* 작업 목록 */}
       <div className="space-y-4">
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <Card className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <PlusIcon className="w-16 h-16 mx-auto" />
@@ -156,93 +161,22 @@ const TaskManager: React.FC = () => {
             </Button>
           </Card>
         ) : (
-          <AnimatePresence>
-            {tasks.map((task) => (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      {/* 작업 제목과 상태 */}
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                          {task.title}
-                        </h3>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getStatusColor(task.status)}`}>
-                          {getStatusLabel(task.status)}
-                        </span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(task.priority)}`}>
-                          {getPriorityLabel(task.priority)}
-                        </span>
-                      </div>
-
-                      {/* 작업 설명 */}
-                      {task.description && (
-                        <p className="text-gray-600 mb-3 line-clamp-2">
-                          {task.description}
-                        </p>
-                      )}
-
-                      {/* 작업 정보 */}
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className="flex items-center">
-                          ⏱️ {task.estimatedDuration}분
-                        </span>
-                        <span className="flex items-center">
-                          📁 {task.category}
-                        </span>
-                        {task.isFlexible && (
-                          <span className="flex items-center">
-                            🔄 유연한 일정
-                          </span>
-                        )}
-                        {task.subtasks.length > 0 && (
-                          <span className="flex items-center">
-                            📋 {task.subtasks.filter(st => st.isCompleted).length}/{task.subtasks.length} 하위작업
-                          </span>
-                        )}
-                      </div>
-
-                      {/* 생성일 */}
-                      <div className="text-xs text-gray-400 mt-2">
-                        생성일: {new Date(task.createdAt).toLocaleDateString('ko-KR')}
-                      </div>
-                    </div>
-
-                    {/* 액션 버튼들 */}
-                    <div className="flex items-center space-x-2 ml-4">
-                      <Button
-                        onClick={() => openEditForm(task)}
-                        variant="secondary"
-                        size="sm"
-                        className="p-2"
-                        disabled={deletingTaskId === task.id}
-                      >
-                        <PencilIcon className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => handleDeleteTask(task.id)}
-                        variant="danger"
-                        size="sm"
-                        className="p-2"
-                        isLoading={deletingTaskId === task.id}
-                        disabled={deletingTaskId === task.id}
-                      >
-                        <TrashIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          <>
+            <DraggableTaskList
+              tasks={filteredTasks}
+              onEdit={openEditForm}
+              onDelete={handleDeleteClick}
+              selectedTasks={selectedTasks}
+              onSelectTask={handleSelectTask}
+            />
+            <BulkOperations
+              selectedTasks={selectedTasks}
+              onClearSelection={handleClearSelection}
+            />
+          </>
         )}
       </div>
+
 
       {/* 작업 폼 모달 */}
       <TaskForm
@@ -252,6 +186,17 @@ const TaskManager: React.FC = () => {
         editingTask={editingTask}
         isLoading={isLoading}
       />
+
+      {/* 삭제 확인 모달 */}
+      {deletingTask && (
+        <DeleteTaskDialog
+          isOpen={true}
+          onClose={handleDeleteConfirm}
+          taskId={deletingTask.id}
+          taskTitle={deletingTask.title}
+          hasSubtasks={deletingTask.hasSubtasks}
+        />
+      )}
     </div>
   )
 }

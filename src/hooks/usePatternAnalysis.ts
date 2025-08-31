@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '../store'
+import { RootState } from '../store/store'
 import { patternAnalysisService, AnalysisInsights } from '../services/patternAnalysisService'
 import { analyticsService } from '../services/analyticsService'
 
@@ -251,7 +251,7 @@ export const usePatternAnalysis = () => {
     }
 
     return recommendations.sort((a, b) => {
-      const priorityOrder = { high: 3, medium: 2, low: 1 }
+      const priorityOrder: Record<string, number> = { high: 3, medium: 2, low: 1 }
       return priorityOrder[b.priority] - priorityOrder[a.priority]
     })
   }, [insights])

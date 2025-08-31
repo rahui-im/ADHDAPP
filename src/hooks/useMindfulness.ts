@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useAppSelector, useAppDispatch } from '../store/store'
+import { useAppSelector } from '../store/store'
 import { selectCurrentUser, selectFocusMode } from '../store/selectors'
 import { MindfulnessActivity } from '../components/focus/MindfulnessActivities'
 
@@ -21,7 +21,7 @@ interface UseMindfulnessReturn {
 }
 
 export const useMindfulness = (): UseMindfulnessReturn => {
-  const dispatch = useAppDispatch()
+  // const dispatch = useAppDispatch()
   const user = useAppSelector(selectCurrentUser)
   const focusMode = useAppSelector(selectFocusMode)
   

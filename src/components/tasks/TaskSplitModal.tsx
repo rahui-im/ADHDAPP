@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { CreateTaskRequest, Subtask } from '../../types'
 import Button from '../ui/Button'
 import Modal from '../ui/Modal'
-import { PlusIcon, TrashIcon, PencilIcon } from '../ui/Icons'
+import { PlusIcon, TrashIcon } from '../ui/Icons'
 
 interface TaskSplitModalProps {
   isOpen: boolean
@@ -19,7 +19,6 @@ const TaskSplitModal: React.FC<TaskSplitModalProps> = ({
   taskData,
 }) => {
   const [subtasks, setSubtasks] = useState<Subtask[]>([])
-  const [editingIndex, setEditingIndex] = useState<number | null>(null)
 
   // 초기 자동 분할
   useEffect(() => {

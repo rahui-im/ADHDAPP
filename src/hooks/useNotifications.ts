@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '../store'
+import { RootState } from '../store/store'
 import { notificationService, NotificationPermissionResult } from '../services/notificationService'
-import { TimerState } from '../types'
+// import { TimerState } from '../types'
 
 export interface NotificationState {
   supported: boolean
@@ -19,7 +19,7 @@ export const useNotifications = () => {
     requesting: false
   })
 
-  const userPreferences = useSelector((state: RootState) => state.user.preferences)
+  const userPreferences = useSelector((state: RootState) => state.user.currentUser?.preferences)
   const timerState = useSelector((state: RootState) => state.timer)
   const currentTask = useSelector((state: RootState) => 
     state.tasks.tasks.find(task => task.id === state.timer.currentTaskId)
@@ -32,9 +32,9 @@ export const useNotifications = () => {
       ...prev,
       supported: status.supported,
       permission: status.permission,
-      enabled: status.enabled && userPreferences.notificationsEnabled
+      enabled: status.enabled && (userPreferences?.notificationsEnabled ?? false)
     }))
-  }, [userPreferences.notificationsEnabled])
+  }, [userPreferences?.notificationsEnabled])
 
   // 알림 권한 요청
   const requestPermission = useCallback(async (): Promise<NotificationPermissionResult> => {
@@ -121,7 +121,7 @@ export const useNotifications = () => {
   // 사용자 설정 변경 시 알림 상태 업데이트
   useEffect(() => {
     updateNotificationState()
-  }, [userPreferences.notificationsEnabled, updateNotificationState])
+  }, [userPreferences?.notificationsEnabled, updateNotificationState])
 
   // 페이지 언로드 시 알림 정리
   useEffect(() => {

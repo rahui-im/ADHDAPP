@@ -3,19 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAppDispatch, useAppSelector } from '../../store/store'
 import { 
   selectTodayTasks, 
-  selectTasksByPriority,
-  selectAllTasks 
+  selectTasksByPriority
 } from '../../store/selectors'
 import { 
   updateTaskStatus, 
   toggleSubtask, 
   setCurrentTask 
 } from '../../store/taskSlice'
-import { Task, Subtask } from '../../types'
+import { Task } from '../../types'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
 import ProgressBar from '../ui/ProgressBar'
-import { CheckCircleIcon, ClockIcon, FolderIcon } from '../ui/Icons'
+import { CheckCircleIcon, ClockIcon } from '../ui/Icons'
 
 interface TaskListProps {
   showTodayOnly?: boolean
@@ -32,7 +31,6 @@ const TaskList: React.FC<TaskListProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const todayTasks = useAppSelector(selectTodayTasks)
-  const allTasks = useAppSelector(selectAllTasks)
   const tasksByPriority = useAppSelector(selectTasksByPriority)
   
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set())
@@ -192,7 +190,7 @@ const TaskList: React.FC<TaskListProps> = ({
                           <span>{formatTimeRemaining(task)}</span>
                         </span>
                         <span className="flex items-center space-x-1">
-                          <FolderIcon className="w-4 h-4" />
+                          <span>📁</span>
                           <span>{task.category}</span>
                         </span>
                         {task.subtasks.length > 0 && (
@@ -245,7 +243,7 @@ const TaskList: React.FC<TaskListProps> = ({
                     <ProgressBar 
                       progress={progress} 
                       className="h-2"
-                      color={task.status === 'completed' ? 'green' : 'primary'}
+                      color={task.status === 'completed' ? 'success' : 'primary'}
                     />
                   </div>
 

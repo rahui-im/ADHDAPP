@@ -12,7 +12,17 @@
       "Bash(npm run lint)",
       "Bash(npm run test:*)",
       "WebFetch(domain:adhdapp-gamma.vercel.app)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(git config:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

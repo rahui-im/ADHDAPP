@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-import { Task, CreateTaskRequest, Subtask, ScheduleAdjustment, DailySchedule, GoalAdjustment, DailyStats } from '../types'
+import { Task, CreateTaskRequest, Subtask, ScheduleAdjustment, DailySchedule, GoalAdjustment, DailyStats, TaskStatus } from '../types'
 import { schedulingService } from '../services/schedulingService'
 import { goalAdjustmentService } from '../services/goalAdjustmentService'
 
@@ -10,6 +10,11 @@ interface TaskState {
   goalAdjustment: GoalAdjustment | null
   loading: boolean
   error: string | null
+  filter: {
+    status: TaskStatus | 'all'
+    priority: 'all' | 'high' | 'medium' | 'low'
+    category: string
+  }
 }
 
 const initialState: TaskState = {
@@ -19,6 +24,11 @@ const initialState: TaskState = {
   goalAdjustment: null,
   loading: false,
   error: null,
+  filter: {
+    status: 'all',
+    priority: 'all',
+    category: 'all',
+  },
 }
 
 // Async thunks
@@ -60,7 +70,7 @@ export const createTaskAsync = createAsyncThunk(
 
 export const updateTaskAsync = createAsyncThunk(
   'tasks/updateTask',
-  async ({ id, updates }: { id: string; updates: Partial<CreateTaskRequest & { subtasks?: Subtask[] }> }) => {
+  async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 300))
     return { id, updates }
@@ -244,6 +254,16 @@ const taskSlice = createSlice({
       // 추천된 순서로 작업 재정렬
       const otherTasks = state.tasks.filter(t => t.status !== 'pending')
       state.tasks = [...recommendedTasks, ...otherTasks]
+    },
+
+
+    // 작업 필터 설정
+    setTaskFilter: (state, action: PayloadAction<{ 
+      status?: TaskStatus | 'all'; 
+      priority?: 'all' | 'high' | 'medium' | 'low';
+      category?: string;
+    }>) => {
+      state.filter = { ...state.filter, ...action.payload }
     },
 
     // 로딩 상태 설정
@@ -446,6 +466,7 @@ export const {
   setCurrentTask,
   updateTaskStatus,
   reorderTasks,
+  setTaskFilter,
   postponeTask,
   applyScheduleAdjustments,
   reorderTasksByEnergy,

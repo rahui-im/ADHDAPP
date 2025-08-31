@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../store'
+import { RootState } from '../store/store'
 import { analyticsService } from '../services/analyticsService'
 import { DistractionType, Session, DailyStats, WeeklyInsight } from '../types'
 import { setLoading, setError } from '../store/analyticsSlice'
@@ -236,7 +236,7 @@ export const useAnalytics = () => {
 
 // 분석 데이터 계산을 위한 유틸리티 훅
 export const useAnalyticsCalculations = () => {
-  const analytics = useSelector((state: RootState) => state.analytics)
+  // const analytics = useSelector((state: RootState) => state.analytics)
 
   // 완료율 계산
   const calculateCompletionRate = useCallback((stats: DailyStats[]): number => {

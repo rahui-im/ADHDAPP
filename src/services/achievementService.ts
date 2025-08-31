@@ -10,21 +10,18 @@ export class AchievementService {
         title: "작업 완료!",
         description: `"${taskTitle}"를 성공적으로 완료했습니다!`,
         icon: "🎯",
-        color: "from-green-400 to-green-600",
         points: 10
       },
       {
         title: "목표 달성!",
         description: `"${taskTitle}" 완료! 한 걸음 더 나아갔어요!`,
         icon: "✅",
-        color: "from-blue-400 to-blue-600",
         points: 10
       },
       {
         title: "성공!",
         description: `"${taskTitle}"를 끝까지 해냈어요!`,
         icon: "🌟",
-        color: "from-purple-400 to-purple-600",
         points: 10
       }
     ]
@@ -33,9 +30,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'task_completed',
-      ...randomAchievement,
-      timestamp: new Date()
+      title: randomAchievement.title,
+      description: randomAchievement.description,
+      icon: randomAchievement.icon,
+      points: randomAchievement.points
     }
   }
 
@@ -48,14 +46,12 @@ export class AchievementService {
         title: "포모도로 완료!",
         description: "25분 집중을 성공적으로 마쳤습니다!",
         icon: "🍅",
-        color: "from-red-400 to-red-600",
         points: 15
       },
       {
         title: "집중 성공!",
         description: "깊은 집중 시간을 완주했어요!",
         icon: "⏰",
-        color: "from-orange-400 to-orange-600",
         points: 15
       }
     ]
@@ -64,39 +60,30 @@ export class AchievementService {
     if (sessionCount === 1) {
       return {
         id: crypto.randomUUID(),
-        type: 'pomodoro_completed',
         title: "첫 포모도로!",
         description: "첫 번째 포모도로를 완료했어요! 좋은 시작이에요!",
         icon: "🎉",
-        color: "from-yellow-400 to-yellow-600",
-        points: 20,
-        timestamp: new Date()
+        points: 20
       }
     }
 
     if (sessionCount === 4) {
       return {
         id: crypto.randomUUID(),
-        type: 'pomodoro_completed',
         title: "집중력 마스터!",
         description: "4개의 포모도로를 완료했어요! 대단한 집중력이에요!",
         icon: "🔥",
-        color: "from-red-500 to-red-700",
-        points: 30,
-        timestamp: new Date()
+        points: 30
       }
     }
 
     if (sessionCount === 8) {
       return {
         id: crypto.randomUUID(),
-        type: 'pomodoro_completed',
         title: "집중의 신!",
         description: "8개의 포모도로! 정말 놀라운 집중력이에요!",
         icon: "👑",
-        color: "from-purple-500 to-purple-700",
-        points: 50,
-        timestamp: new Date()
+        points: 50
       }
     }
 
@@ -104,9 +91,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'pomodoro_completed',
-      ...randomAchievement,
-      timestamp: new Date()
+      title: randomAchievement.title,
+      description: randomAchievement.description,
+      icon: randomAchievement.icon,
+      points: randomAchievement.points
     }
   }
 
@@ -127,13 +115,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'streak_milestone',
       title: milestone.title,
       description: milestone.description,
       icon: milestone.icon,
-      color: "from-yellow-400 to-yellow-600",
-      points: milestone.points,
-      timestamp: new Date()
+      points: milestone.points
     }
   }
 
@@ -148,14 +133,12 @@ export class AchievementService {
         title: "일일 목표 달성!",
         description: `오늘 목표의 ${completionRate}%를 달성했어요!`,
         icon: "🎯",
-        color: "from-green-400 to-green-600",
         points: 25
       },
       {
         title: "완벽한 하루!",
         description: "계획한 모든 것을 해냈어요! 정말 대단해요!",
         icon: "🌟",
-        color: "from-blue-400 to-blue-600",
         points: 30
       }
     ]
@@ -164,9 +147,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'daily_goal',
-      ...achievement,
-      timestamp: new Date()
+      title: achievement.title,
+      description: achievement.description,
+      icon: achievement.icon,
+      points: achievement.points
     }
   }
 
@@ -186,13 +170,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'focus_time',
       title: milestone.title,
       description: milestone.description,
       icon: milestone.icon,
-      color: "from-purple-400 to-purple-600",
-      points: milestone.points,
-      timestamp: new Date()
+      points: milestone.points
     }
   }
 
@@ -205,21 +186,18 @@ export class AchievementService {
         title: "첫 걸음!",
         description: "첫 번째 작업을 완료했어요! 모든 여행은 첫 걸음부터 시작됩니다!",
         icon: "🚀",
-        color: "from-green-400 to-green-600",
         points: 25
       },
       perfect_week: {
         title: "완벽한 한 주!",
         description: "일주일 동안 모든 목표를 달성했어요! 정말 대단해요!",
         icon: "🏆",
-        color: "from-gold-400 to-gold-600",
         points: 100
       },
       comeback: {
         title: "컴백!",
         description: "다시 시작하는 용기가 정말 멋져요! 포기하지 않는 마음이 최고예요!",
         icon: "💪",
-        color: "from-blue-400 to-blue-600",
         points: 30
       }
     }
@@ -228,9 +206,10 @@ export class AchievementService {
 
     return {
       id: crypto.randomUUID(),
-      type: 'task_completed', // 기본 타입
-      ...achievement,
-      timestamp: new Date()
+      title: achievement.title,
+      description: achievement.description,
+      icon: achievement.icon,
+      points: achievement.points
     }
   }
 

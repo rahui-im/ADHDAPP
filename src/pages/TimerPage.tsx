@@ -42,7 +42,12 @@ const TimerPage: React.FC = () => {
         {/* 사이드바 */}
         <div className="space-y-6">
           {/* 집중 모드 */}
-          <FocusMode />
+          <FocusMode 
+            isActive={false}
+            currentTask={currentTask || undefined}
+            onToggle={() => {}}
+            onDistraction={() => {}}
+          />
           
           {/* 타이머 설정 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">

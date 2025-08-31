@@ -32,8 +32,7 @@ const DistractionHandler: React.FC<DistractionHandlerProps> = ({ isActive }) => 
     isVisible: showMindfulness,
     showMindfulness: openMindfulness,
     hideMindfulness: closeMindfulness,
-    completeMindfulnessActivity,
-    shouldSuggestMindfulness,
+    completeMindfulnessActivity
   } = useMindfulness()
 
   // 주의산만 이벤트 처리
@@ -78,7 +77,7 @@ const DistractionHandler: React.FC<DistractionHandlerProps> = ({ isActive }) => 
   }
 
   // 비활성 상태 처리
-  const handleInactivityDistraction = (event: DistractionEvent) => {
+  const handleInactivityDistraction = (_event: DistractionEvent) => {
     setShowInactivityReminder(true)
     
     // 분석용 데이터 저장
@@ -105,7 +104,7 @@ const DistractionHandler: React.FC<DistractionHandlerProps> = ({ isActive }) => 
   }
 
   // 알림 처리
-  const handleNotificationDistraction = (event: DistractionEvent) => {
+  const handleNotificationDistraction = (_event: DistractionEvent) => {
     // 알림 차단이 활성화된 경우 처리
     if (user?.settings.focusMode.hideNotifications) {
       console.log('Notification blocked during focus mode')

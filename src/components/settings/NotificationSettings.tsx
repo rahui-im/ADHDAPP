@@ -6,9 +6,7 @@ import {
   BellIcon, 
   BellSlashIcon, 
   ExclamationTriangleIcon,
-  CheckCircleIcon,
-  SpeakerWaveIcon,
-  SpeakerXMarkIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline'
 
 interface NotificationSettingsProps {

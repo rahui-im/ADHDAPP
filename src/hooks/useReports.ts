@@ -1,6 +1,4 @@
 import { useState, useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../store'
 import { 
   reportGenerationService, 
   WeeklyReport, 
@@ -24,7 +22,7 @@ export const useReports = () => {
     monthly: []
   })
 
-  const analytics = useSelector((state: RootState) => state.analytics)
+  // const analytics = useSelector((state: RootState) => state.analytics)
 
   // 주간 리포트 생성
   const generateWeeklyReport = useCallback(async (weekStart?: Date): Promise<WeeklyReport | null> => {

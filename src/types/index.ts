@@ -1,4 +1,6 @@
 // 기본 타입 정의
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'postponed'
+
 export interface BaseEntity {
   id: string
   createdAt: Date
@@ -23,7 +25,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high'
   category: string
   isFlexible: boolean
-  status: 'pending' | 'in-progress' | 'completed' | 'postponed'
+  status: TaskStatus
   createdAt: Date
   completedAt?: Date
   scheduledFor?: Date // 예정된 실행 날짜
@@ -174,7 +176,7 @@ export interface PomodoroTimerProps {
 
 export interface FocusModeProps {
   isActive: boolean
-  currentTask: Task
+  currentTask?: Task
   onToggle: () => void
   onDistraction: (type: DistractionType) => void
 }

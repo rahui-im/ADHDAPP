@@ -2,7 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Button from '../ui/Button'
 
-interface Achievement {
+export interface Achievement {
   id: string
   title: string
   description: string

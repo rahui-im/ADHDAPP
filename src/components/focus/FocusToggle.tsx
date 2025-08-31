@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '../../store/store'
-import { selectFocusMode, selectCurrentUser } from '../../store/selectors'
+import { selectFocusMode } from '../../store/selectors'
 import { toggleFocusMode } from '../../store/userSlice'
 import Button from '../ui/Button'
 import Tooltip from '../ui/Tooltip'
@@ -19,7 +19,6 @@ const FocusToggle: React.FC<FocusToggleProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const focusMode = useAppSelector(selectFocusMode)
-  const user = useAppSelector(selectCurrentUser)
   const [showTooltip, setShowTooltip] = useState(false)
 
   const handleToggle = () => {

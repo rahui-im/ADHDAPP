@@ -64,7 +64,7 @@ export const TimerControls: React.FC<TimerControlsProps> = ({
     'long-break': 'bg-purple-600 hover:bg-purple-700 focus:ring-purple-500',
   }
 
-  const primaryColor = modeColors[mode]
+  const primaryColor = modeColors[mode as keyof typeof modeColors] || modeColors.focus
 
   return (
     <div className={`flex items-center justify-center space-x-4 ${className}`}>

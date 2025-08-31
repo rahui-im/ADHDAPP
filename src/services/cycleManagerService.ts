@@ -236,17 +236,17 @@ export class CycleManagerService {
     let recommendedLongBreakDuration = settings.longBreakDuration
 
     if (averageCompletionRate < 0.7) {
-      recommendedCycleLength = Math.max(2, settings.cyclesBeforeLongBreak - 1)
+      recommendedCycleLength = Math.max(2, settings.cyclesBeforeLongBreak - 1) as 3
       suggestions.push('더 자주 긴 휴식을 취해보세요')
     }
 
     if (averageEnergyAfter < 3) {
-      recommendedLongBreakDuration = Math.min(45, settings.longBreakDuration + 5)
+      recommendedLongBreakDuration = Math.min(45, settings.longBreakDuration + 5) as 25
       suggestions.push('긴 휴식 시간을 늘려보세요')
     }
 
     if (averageCompletionRate > 0.9 && averageEnergyAfter > 3.5) {
-      recommendedCycleLength = Math.min(6, settings.cyclesBeforeLongBreak + 1)
+      recommendedCycleLength = Math.min(6, settings.cyclesBeforeLongBreak + 1) as 3
       suggestions.push('더 긴 사이클에 도전해보세요')
     }
 

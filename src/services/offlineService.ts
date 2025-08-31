@@ -3,6 +3,8 @@
  * 오프라인 상태에서의 데이터 저장, 동기화, 캐싱 관리
  */
 
+import React from 'react'
+
 interface OfflineAction {
   id: string
   type: 'CREATE' | 'UPDATE' | 'DELETE'

@@ -1067,7 +1067,7 @@ describe('Task Splitter', () => {
 - [x] **P0-005**: Timer System Implementation ✅
   - [x] Pomodoro timer working ✅
   - [x] Background timing accurate ✅
-  - [ ] Notifications functional (partial)
+  - [x] Notifications functional ✅
   - [x] Session tracking ✅
   
 - [x] **P0-006**: Task Auto-Split Logic ✅

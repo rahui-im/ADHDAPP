@@ -59,7 +59,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
     },
   }
 
-  const colors = modeColors[mode]
+  const colors = modeColors[mode as keyof typeof modeColors] || modeColors.focus
   const circumference = 2 * Math.PI * Number(currentSize.radius)
   const strokeDashoffset = circumference - (progress / 100) * circumference
 

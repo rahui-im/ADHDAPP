@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../store'
+import { RootState } from '../../store/store'
 import { useTimer } from '../../hooks/useTimer'
 import { cycleManagerService } from '../../services/cycleManagerService'
 import { Task } from '../../types'
@@ -36,7 +36,6 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = ({
     isPaused, 
     remaining, 
     duration,
-    currentCycle,
     totalCycles,
     settings,
     changeMode

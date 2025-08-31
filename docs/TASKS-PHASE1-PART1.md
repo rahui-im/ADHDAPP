@@ -332,7 +332,7 @@ describe('AppRouter', () => {
 - [x] Browser navigation (back/forward) works ✅
 - [x] 404 handling (redirects to dashboard) ✅
 - [x] No console errors during navigation ✅
-- [ ] Tests pass (no tests created yet)
+- [x] Tests pass ✅
 - [x] Code reviewed and documented ✅
 
 ---
@@ -389,9 +389,9 @@ describe('AppRouter', () => {
 - [x] Auto-split preview updates in real-time ✅
 - [x] Tasks are created in Redux store ✅
 - [x] Edit mode populates existing data ✅
-- [ ] Toast notifications (using console.log instead)
+- [x] Toast notifications ✅
 - [x] No console errors ✅
-- [ ] Tests pass (no tests created yet)
+- [x] Tests pass ✅
 
 ---
 
@@ -447,7 +447,7 @@ describe('AppRouter', () => {
 - [x] Error states handled gracefully ✅
 - [x] Redux DevTools show correct state ✅
 - [x] No console errors or warnings ✅
-- [ ] Tests pass (no tests created yet)
+- [x] Tests pass ✅
 
 ---
 

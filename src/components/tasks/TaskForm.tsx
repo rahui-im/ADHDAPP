@@ -118,7 +118,11 @@ const TaskForm: React.FC<TaskFormProps> = ({
     
     // 실시간 에러 제거
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }))
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      })
     }
   }
 

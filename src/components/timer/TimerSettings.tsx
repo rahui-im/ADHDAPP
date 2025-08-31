@@ -1,8 +1,7 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../store'
+import { RootState } from '../../store/store'
 import { updateTimerSettings } from '../../store/timerSlice'
-import { updateUserSettings } from '../../store/userSlice'
 import { TimerSettings as TimerSettingsType } from '../../types'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -13,37 +12,17 @@ interface TimerSettingsProps {
 
 export const TimerSettings: React.FC<TimerSettingsProps> = ({ onClose }) => {
   const dispatch = useDispatch()
-  const { settings: timerSettings } = useSelector((state: RootState) => state.timer)
-  const { settings: userSettings } = useSelector((state: RootState) => state.user)
+  const timerSettings = useSelector((state: RootState) => state.timer.settings)
+  const userPreferences = useSelector((state: RootState) => state.user.currentUser?.preferences)
 
-  const handleFocusDurationSelect = (duration: 15 | 25 | 45) => {
-    // 사용자 기본 설정 업데이트
-    dispatch(updateUserSettings({
-      timer: {
-        ...userSettings.timer,
-        focusDurations: timerSettings.focusDurations.map(d => 
-          d === duration ? duration : d
-        ) as [15, 25, 45]
-      }
-    }))
-
+  const handleFocusDurationSelect = () => {
     // 타이머 설정 업데이트
     dispatch(updateTimerSettings({
       focusDurations: timerSettings.focusDurations
     }))
   }
 
-  const handleBreakDurationSelect = (duration: 5 | 10 | 15) => {
-    // 사용자 기본 설정 업데이트
-    dispatch(updateUserSettings({
-      timer: {
-        ...userSettings.timer,
-        shortBreakDurations: timerSettings.shortBreakDurations.map(d => 
-          d === duration ? duration : d
-        ) as [5, 10, 15]
-      }
-    }))
-
+  const handleBreakDurationSelect = () => {
     // 타이머 설정 업데이트
     dispatch(updateTimerSettings({
       shortBreakDurations: timerSettings.shortBreakDurations
@@ -52,30 +31,18 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({ onClose }) => {
 
   const handleLongBreakDurationChange = (duration: number) => {
     const newSettings: Partial<TimerSettingsType> = {
-      longBreakDuration: duration
+      longBreakDuration: duration as 25
     }
 
     dispatch(updateTimerSettings(newSettings))
-    dispatch(updateUserSettings({
-      timer: {
-        ...userSettings.timer,
-        ...newSettings
-      }
-    }))
   }
 
   const handleCyclesBeforeLongBreakChange = (cycles: number) => {
     const newSettings: Partial<TimerSettingsType> = {
-      cyclesBeforeLongBreak: cycles
+      cyclesBeforeLongBreak: cycles as 3
     }
 
     dispatch(updateTimerSettings(newSettings))
-    dispatch(updateUserSettings({
-      timer: {
-        ...userSettings.timer,
-        ...newSettings
-      }
-    }))
   }
 
   return (
@@ -97,16 +64,16 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({ onClose }) => {
             ADHD 특성에 맞는 집중 시간을 선택하세요. 짧은 시간부터 시작하는 것을 권장합니다.
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {timerSettings.focusDurations.map((duration) => (
+            {timerSettings.focusDurations.map((duration: number) => (
               <Button
                 key={duration}
                 variant="outline"
                 className={`p-4 h-auto flex flex-col items-center space-y-2 ${
-                  userSettings.preferences.defaultFocusDuration === duration
+                  userPreferences?.defaultFocusDuration === duration
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'hover:border-blue-300'
                 }`}
-                onClick={() => handleFocusDurationSelect(duration)}
+                onClick={() => handleFocusDurationSelect()}
               >
                 <span className="text-2xl font-bold">{duration}분</span>
                 <span className="text-xs text-gray-500">
@@ -126,16 +93,16 @@ export const TimerSettings: React.FC<TimerSettingsProps> = ({ onClose }) => {
             집중 후 충분한 휴식을 취하세요. 에너지 레벨에 따라 조정할 수 있습니다.
           </p>
           <div className="grid grid-cols-3 gap-3">
-            {timerSettings.shortBreakDurations.map((duration) => (
+            {timerSettings.shortBreakDurations.map((duration: number) => (
               <Button
                 key={duration}
                 variant="outline"
                 className={`p-4 h-auto flex flex-col items-center space-y-2 ${
-                  userSettings.preferences.defaultBreakDuration === duration
+                  userPreferences?.defaultBreakDuration === duration
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'hover:border-green-300'
                 }`}
-                onClick={() => handleBreakDurationSelect(duration)}
+                onClick={() => handleBreakDurationSelect()}
               >
                 <span className="text-2xl font-bold">{duration}분</span>
                 <span className="text-xs text-gray-500">

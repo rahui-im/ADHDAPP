@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../store'
+import { RootState } from '../store/store'
 import { generateGoalAdjustment, acceptGoalAdjustment, declineGoalAdjustment } from '../store/taskSlice'
 import { DailyStats, Task } from '../types'
 
 export const useGoalAdjustment = () => {
   const dispatch = useDispatch()
   const { tasks, goalAdjustment, loading } = useSelector((state: RootState) => state.tasks)
-  const { dailyStats } = useSelector((state: RootState) => state.analytics)
+  // const { dailyStats } = useSelector((state: RootState) => state.analytics)
   
   const [isModalOpen, setIsModalOpen] = useState(false)
 

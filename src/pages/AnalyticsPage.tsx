@@ -17,12 +17,12 @@ import {
  */
 const AnalyticsPage: React.FC = () => {
   const { analytics, isLoading } = useAnalytics()
-  const { generateReport, isGenerating } = useReports()
+  const { generateWeeklyReport, isGenerating } = useReports()
   const [timeRange, setTimeRange] = React.useState<'week' | 'month' | 'quarter'>('week')
 
   const handleExportReport = async () => {
     try {
-      await generateReport(timeRange)
+      await generateWeeklyReport()
     } catch (error) {
       console.error('리포트 생성 실패:', error)
     }
@@ -86,9 +86,9 @@ const AnalyticsPage: React.FC = () => {
               <ChartBarIcon className="w-6 h-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">완료율</p>
+              <p className="text-sm font-medium text-gray-600">완료된 작업</p>
               <p className="text-2xl font-bold text-gray-900">
-                {analytics?.completionRate ? `${Math.round(analytics.completionRate)}%` : '0%'}
+                {analytics?.totalCompletedTasks ? `${analytics.totalCompletedTasks}개` : '0개'}
               </p>
             </div>
           </div>
@@ -100,9 +100,9 @@ const AnalyticsPage: React.FC = () => {
               <CalendarIcon className="w-6 h-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">평균 집중 시간</p>
+              <p className="text-sm font-medium text-gray-600">총 집중 시간</p>
               <p className="text-2xl font-bold text-gray-900">
-                {analytics?.averageFocusTime ? `${Math.round(analytics.averageFocusTime)}분` : '0분'}
+                {analytics?.totalFocusTime ? `${Math.round(analytics.totalFocusTime)}분` : '0분'}
               </p>
             </div>
           </div>
@@ -116,7 +116,7 @@ const AnalyticsPage: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">현재 연속 기록</p>
               <p className="text-2xl font-bold text-gray-900">
-                {analytics?.streakData?.current || 0}일
+                {analytics?.currentStreak || 0}일
               </p>
             </div>
           </div>
@@ -130,7 +130,7 @@ const AnalyticsPage: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">생산적인 시간</p>
               <p className="text-2xl font-bold text-gray-900">
-                {analytics?.productiveHours ? `${analytics.productiveHours}시간` : '0시간'}
+                {analytics?.totalFocusTime ? `${Math.round(analytics.totalFocusTime / 60)}시간` : '0시간'}
               </p>
             </div>
           </div>
@@ -138,22 +138,9 @@ const AnalyticsPage: React.FC = () => {
       </div>
 
       {/* 상세 분석 */}
-      <AnalyticsOverview timeRange={timeRange} />
+      <AnalyticsOverview />
 
-      {/* 개선 제안 */}
-      {analytics?.improvementAreas && analytics.improvementAreas.length > 0 && (
-        <Card className="p-6 mt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">개선 제안</h3>
-          <div className="space-y-3">
-            {analytics.improvementAreas.map((area, index) => (
-              <div key={index} className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
-                <p className="text-gray-700">{area}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      {/* 개선 제안 - 추후 구현 예정 */}
     </div>
   )
 }

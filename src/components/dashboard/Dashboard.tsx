@@ -9,7 +9,6 @@ import {
   selectEnergyLevel,
   selectCurrentTask,
   selectTimerState,
-  selectCompletedTasks,
 } from '../../store/selectors'
 import Card from '../ui/Card'
 import ProgressBar from '../ui/ProgressBar'
@@ -23,7 +22,6 @@ import TaskRecommendations from './TaskRecommendations'
 import AchievementBadges from './AchievementBadges'
 import AchievementFeedback from './AchievementFeedback'
 import { useAchievements } from '../../hooks/useAchievements'
-import { motion } from 'framer-motion'
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch()
@@ -33,7 +31,6 @@ const Dashboard: React.FC = () => {
   const energyLevel = useAppSelector(selectEnergyLevel)
   const currentTask = useAppSelector(selectCurrentTask)
   const timerState = useAppSelector(selectTimerState)
-  const completedTasks = useAppSelector(selectCompletedTasks)
 
   // 성취 시스템 훅
   const {
@@ -156,7 +153,7 @@ const Dashboard: React.FC = () => {
             <ProgressBar 
               progress={completionRate} 
               className="h-3"
-              color={completionRate >= 70 ? 'green' : completionRate >= 40 ? 'yellow' : 'red'}
+              color={completionRate >= 70 ? 'success' : completionRate >= 40 ? 'warning' : 'danger'}
             />
           </div>
 
@@ -173,7 +170,7 @@ const Dashboard: React.FC = () => {
             <ProgressBar 
               progress={Math.min((totalFocusTime / 120) * 100, 100)} 
               className="h-3"
-              color="purple"
+              color="primary"
             />
           </div>
         </div>

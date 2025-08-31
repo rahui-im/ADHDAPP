@@ -120,7 +120,7 @@ const TodayTasks: React.FC<TodayTasksProps> = ({
             <ProgressBar 
               progress={completionRate} 
               className="h-3"
-              color={completionRate >= 80 ? 'green' : completionRate >= 50 ? 'primary' : 'orange'}
+              color={completionRate >= 80 ? 'success' : completionRate >= 50 ? 'primary' : 'warning'}
             />
           </div>
 

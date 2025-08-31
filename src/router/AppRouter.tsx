@@ -9,6 +9,7 @@ const TasksPage = React.lazy(() => import('../pages/TasksPage'))
 const TimerPage = React.lazy(() => import('../pages/TimerPage'))
 const AnalyticsPage = React.lazy(() => import('../pages/AnalyticsPage'))
 const SettingsPage = React.lazy(() => import('../pages/SettingsPage'))
+const NotFoundPage = React.lazy(() => import('../pages/NotFoundPage'))
 
 // Loading fallback component
 const PageLoader = () => (
@@ -30,7 +31,7 @@ const AppRouter: React.FC = () => {
           <Route path="timer/:taskId" element={<TimerPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="settings" element={<SettingsPage />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </Suspense>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '../../store/store'
-import { selectFocusMode, selectCurrentUser, selectCurrentTask } from '../../store/selectors'
+import { selectCurrentUser } from '../../store/selectors'
 import { setFocusMode, updateFocusSettings } from '../../store/userSlice'
-import { FocusModeProps, DistractionType, Task } from '../../types'
+import { FocusModeProps, FocusSettings } from '../../types'
 import { useMindfulness } from '../../hooks/useMindfulness'
 import Button from '../ui/Button'
 import Card from '../ui/Card'
@@ -49,8 +49,10 @@ const FocusMode: React.FC<FocusModeProps> = ({
   }
 
   // 집중 모드 설정 업데이트
-  const handleUpdateSettings = (updates: Partial<typeof focusSettings>) => {
-    dispatch(updateFocusSettings(updates))
+  const handleUpdateSettings = (updates: Partial<FocusSettings>) => {
+    if (focusSettings) {
+      dispatch(updateFocusSettings(updates))
+    }
   }
 
   // 활동 감지 및 업데이트

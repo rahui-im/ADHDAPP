@@ -1,14 +1,12 @@
 import { useEffect, useCallback, useRef } from 'react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../store'
 import { accessibilityService } from '../services/accessibilityService'
 import type { KeyboardShortcut, FocusTrapOptions } from '../services/accessibilityService'
 
 export const useAccessibility = () => {
-  const timerState = useSelector((state: RootState) => state.timer)
-  const currentTask = useSelector((state: RootState) => 
-    state.tasks.tasks.find(task => task.id === state.timer.currentTaskId)
-  )
+  // const timerState = useSelector((state: RootState) => state.timer)
+  // const currentTask = useSelector((state: RootState) => 
+  //   state.tasks.tasks.find(task => task.id === state.timer.currentTaskId)
+  // )
 
   // 스크린 리더 알림
   const announce = useCallback((message: string, priority: 'polite' | 'assertive' = 'polite') => {
@@ -146,12 +144,12 @@ export const useFocusTrap = (
       })
     } else {
       // 포커스 트랩 제거
-      removeFocusTrap(containerId, options?.returnFocus || returnFocusRef.current)
+      removeFocusTrap(containerId, (options?.returnFocus || returnFocusRef.current) as HTMLElement | undefined)
     }
 
     return () => {
       if (isActive) {
-        removeFocusTrap(containerId, options?.returnFocus || returnFocusRef.current)
+        removeFocusTrap(containerId, (options?.returnFocus || returnFocusRef.current) as HTMLElement | undefined)
       }
     }
   }, [isActive, containerId, createFocusTrap, removeFocusTrap, options])

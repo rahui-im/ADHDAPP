@@ -7,6 +7,32 @@ export const selectAllTasks = (state: RootState) => state.tasks.tasks
 export const selectCurrentTask = (state: RootState) => state.tasks.currentTask
 export const selectTasksLoading = (state: RootState) => state.tasks.loading
 export const selectTasksError = (state: RootState) => state.tasks.error
+export const selectTaskFilter = (state: RootState) => state.tasks.filter
+
+// 필터링된 작업들
+export const selectFilteredTasks = createSelector(
+    [selectAllTasks, selectTaskFilter],
+    (tasks, filter) => {
+        let filtered = [...tasks]
+        
+        // 상태 필터
+        if (filter.status !== 'all') {
+            filtered = filtered.filter(task => task.status === filter.status)
+        }
+        
+        // 우선순위 필터
+        if (filter.priority !== 'all') {
+            filtered = filtered.filter(task => task.priority === filter.priority)
+        }
+        
+        // 카테고리 필터
+        if (filter.category !== 'all') {
+            filtered = filtered.filter(task => task.category === filter.category)
+        }
+        
+        return filtered
+    }
+)
 
 // 오늘의 작업들
 export const selectTodayTasks = createSelector(

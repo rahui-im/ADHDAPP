@@ -186,7 +186,7 @@ class AccessibilityService {
 
     // 이벤트 핸들러 제거
     if (container.hasAttribute('data-focus-trap-handler')) {
-      container.removeEventListener('keydown', this.handleTabInTrap)
+      container.removeEventListener('keydown', this.handleTabInTrap as EventListener)
       container.removeAttribute('data-focus-trap-handler')
     }
 
